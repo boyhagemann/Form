@@ -14,6 +14,8 @@ class FormBuilder
      * @var FormFactory
      */
     protected $factory;
+    
+    protected $elements = array();
 
     /**
      * @param FormFactory $factory
@@ -21,6 +23,11 @@ class FormBuilder
     public function __construct(FormFactory $factory)
     {
         $this->factory = $factory;
+    }
+    
+    public function get($name)
+    {
+        return $this->elements[$name];
     }
 
     /**
