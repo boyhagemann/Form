@@ -240,7 +240,7 @@ class FormBuilder
     public function checkbox($name)
     {
         return $this->addElement(new CheckableElement($name, 'choice', 'checkbox', array(
-			'multiple' => true,
+			'multiple' => false,
 			'expanded' => true,
 		)));
     }

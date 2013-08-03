@@ -93,7 +93,7 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 					$formElement = Form::multiRadio($name, $choices, $value);
 				}
 				else {
-					$formElement = Form::multiSelect($name, $choices, $value);
+					$formElement = Form::checkbox($name, 1, $value);
 				}
 
 			}
