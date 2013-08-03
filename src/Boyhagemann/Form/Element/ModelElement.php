@@ -12,6 +12,7 @@ class ModelElement extends CheckableElement
     protected $model;
     protected $key;
     protected $field;
+    protected $alias;
     protected $callback;
 
 	/**
@@ -26,6 +27,7 @@ class ModelElement extends CheckableElement
 
 		return parent::toArray() + array(
 			'model' => $model,
+                        'alias' => $this>alias,
 			'key' => $this->key,
 			'field' => $this->field,
 		);
@@ -89,6 +91,29 @@ class ModelElement extends CheckableElement
     {
         $this->field = $field;
         return $this;
+    }
+    
+    /**
+     * @param $alias
+     * @return $this
+     */
+    public function alias($alias)
+    {
+        $this->alias = $alias;
+        return $this;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getAlias()
+    {
+        if(!$this->alias) {
+            return $this->name;
+        }
+        
+        return $this->alias;
     }
 
     /**

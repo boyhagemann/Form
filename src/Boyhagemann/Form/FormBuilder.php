@@ -20,9 +20,9 @@ class FormBuilder
     /**
      * @param FormFactory $factory
      */
-    public function __construct(FormFactory $factory)
+    public function __construct()
     {
-        $this->factory = $factory;
+        $this->factory = \App::make('Symfony\Component\Form\FormBuilder');
     }
     
     public function get($name)
@@ -54,6 +54,8 @@ class FormBuilder
         $reference = $this;
         $factory = $this->factory;
         
+        Event::fire('formBuilder.build.pre', compact('factory', 'reference'));
+        
         foreach ($this->elements as $name => $element) {
             
             Event::fire('formBuilder.buildElement.pre', compact('name', 'element', 'factory', 'reference'));
@@ -63,6 +65,8 @@ class FormBuilder
             Event::fire('formBuilder.buildElement.post', compact('name', 'element', 'factory', 'reference'));
             
         }
+        
+        Event::fire('formBuilder.build.post', compact('factory', 'reference'));
 
         return $this->getFactory()->getForm();
     }
@@ -92,8 +96,17 @@ class FormBuilder
         
         return $element;
     }
+    
+    /**
+     * 
+     * @return array
+     */
+    public function getElements()
+    {
+        return $this->elements;
+    }
 
-	/**
+    /**
 	 * @return array
 	 */
 	public function toArray()
