@@ -14,6 +14,7 @@ Form::macro('render', function(FormInterface $form, Model $model = null) {
         $options = array();
 	$options = array(
 		'url' => $view->vars['action'],
+		'class' => 'form-horizontal',
 	);
 
 	if($model) {
@@ -24,7 +25,7 @@ Form::macro('render', function(FormInterface $form, Model $model = null) {
 	}
 
 	$html .= Form::renderFields($form);
-	$html .= Form::submit('Save');
+	$html .= Form::submit('Save', array('class' => 'btn btn-default'));
 	$html .= Form::close();
 
 	return $html;
@@ -64,7 +65,8 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 	$type = $form->getConfig()->getType()->getInnerType()->getName();
 	$name = $vars['name'];
 	$label = $vars['label'] ?: $name;
-        $value = $vars['data'];
+    $value = $vars['data'];
+	$attr = $vars['attr'];
 
 	$formLabel = Form::label($name, $label);
 
@@ -73,11 +75,11 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 		case 'integer':
 		case 'percent':
 		case 'text':
-			$formElement = Form::text($name, $value);
+			$formElement = Form::text($name, $value, $attr);
 			break;
 
 		case 'textarea':
-			$formElement = Form::textarea($name, $value);
+			$formElement = Form::textarea($name, $value, $attr);
 			break;
 
 		case 'choice':
@@ -90,20 +92,20 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 			if($vars['expanded']) {
 
 				if($vars['multiple']) {
-					$formElement = Form::multiRadio($name, $choices, $value);
+					$formElement = Form::multiRadio($name, $choices, $value, $attr);
 				}
 				else {
-					$formElement = Form::checkbox($name, 1, $value);
+					$formElement = Form::checkbox($name, 1, $value, $attr);
 				}
 
 			}
 			else {
 
 				if($vars['multiple']) {
-					$formElement = Form::multiCheckbox($name, $choices, $value);
+					$formElement = Form::multiCheckbox($name, $choices, $value, $attr);
 				}
 				else {
-					$formElement = Form::select($name, $choices, $value);
+					$formElement = Form::select($name, $choices, $value, $attr);
 				}
 
 			}
@@ -114,7 +116,7 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 
 	$error = $errors ? $errors->first($name, '<span class="error">:message</span>') : '';
 
-	return sprintf('<div class="row">%s%s%s</div>', $formLabel, $formElement, $error);
+	return sprintf('<div class="form-group">%s%s%s</div>', $formLabel, $formElement, $error);
 });
 
 

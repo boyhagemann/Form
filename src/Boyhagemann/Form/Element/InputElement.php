@@ -22,7 +22,11 @@ class InputElement
 	/**
 	 * @var array
 	 */
-	protected $options;
+	protected $options = array();
+
+	protected $attributes = array(
+		'class' => 'form-control'
+	);
 
 	/**
 	 * @var string
@@ -40,7 +44,6 @@ class InputElement
 		$this->name = $name;
 		$this->formType = $formType;
 		$this->type = $type;
-		$this->options = $options;
 	}
 
 	public function toArray()
@@ -51,6 +54,7 @@ class InputElement
 			'rules' => $this->rules,
 			'label' => $this->getOption('label'),
 			'size' => $this->getOption('max_length'),
+			'attr' => $this->attributes,
 		);
 	}
 
@@ -89,6 +93,14 @@ class InputElement
 		}
 
 		return $this->options[$name];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAttributes()
+	{
+		return $this->attributes;
 	}
 
 	/**
@@ -133,6 +145,17 @@ class InputElement
 	public function value($value)
 	{
 		$this->options['data'] = $value;
+		return $this;
+	}
+
+	/**
+	 * @param $name
+	 * @param $value
+	 * @return $this
+	 */
+	public function attr($name, $value)
+	{
+		$this->attributes[$name] = $value;
 		return $this;
 	}
 

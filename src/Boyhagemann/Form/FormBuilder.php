@@ -60,7 +60,8 @@ class FormBuilder
             
             Event::fire('formBuilder.buildElement.pre', compact('name', 'element', 'factory', 'reference'));
 
-            $this->factory->add($name, $element->getFormType(), $element->getOptions());
+			$options = $element->getOptions() + array('attr' => $element->getAttributes());
+            $this->factory->add($name, $element->getFormType(), $options);
 
             Event::fire('formBuilder.buildElement.post', compact('name', 'element', 'factory', 'reference'));
             
