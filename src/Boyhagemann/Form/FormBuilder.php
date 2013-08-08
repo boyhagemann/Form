@@ -10,6 +10,11 @@ use Event;
 
 class FormBuilder
 {
+	/**
+	 * @var string
+	 */
+	protected $name;
+
     /**
      * @var FormFactory
      */
@@ -24,8 +29,30 @@ class FormBuilder
     {
         $this->factory = \App::make('Symfony\Component\Form\FormBuilder');
     }
-    
-    public function get($name)
+
+	/**
+	 * @param string $name
+	 * @return $this
+	 */
+	public function setName($name)
+	{
+		$this->name = $name;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @param $name
+	 * @return InputElement
+	 */
+	public function get($name)
     {
         return $this->elements[$name];
     }

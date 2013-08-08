@@ -13,6 +13,7 @@ class ModelElement extends CheckableElement
     protected $key;
     protected $field;
     protected $alias;
+    protected $blank;
     protected $callback;
 
 	/**
@@ -27,9 +28,10 @@ class ModelElement extends CheckableElement
 
 		return parent::toArray() + array(
 			'model' => $model,
-                        'alias' => $this>alias,
+            'alias' => $this>alias,
 			'key' => $this->key,
 			'field' => $this->field,
+			'blank' => $this->blank,
 		);
 	}
 
@@ -102,6 +104,16 @@ class ModelElement extends CheckableElement
         $this->alias = $alias;
         return $this;
     }
+
+	/**
+	 * @param $blank
+	 * @return $this
+	 */
+	public function blank($blank)
+	{
+		$this->blank = $blank;
+		return $this;
+	}
     
     /**
      * 
@@ -155,7 +167,11 @@ class ModelElement extends CheckableElement
         $key = $this->key ? $this->key : 'id';
         $field = $this->field ? $this->field : "title";
 
-        return $q->lists($field, $key);
+
+		$choices = $this->blank ? array('' => $this->blank) : array();
+		$choices += $q->lists($field, $key);
+
+		return $choices;
     }
 
     /**
