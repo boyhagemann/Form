@@ -50,3 +50,16 @@ $fb->modelSelect('category_id')
 $fb->get('title')->label('What is the title?');
    
 ```
+
+## Export and import
+The FormBuilder can be exported as an array with the toArray method. 
+This array can be stored as a config file.
+```php
+// Get the form as a config and store it in a file or session
+$config = $fb->toArray();
+
+// Then import it back again later to get the exact form
+$fb->fromArray($config);
+```
+
+
