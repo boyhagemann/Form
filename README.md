@@ -5,6 +5,7 @@ With this package you can:
 
 * Generate forms using a fluent interface
 * Present data from other models as choice fields like select lists, radio buttons or checkboxes.
+* Render a whole form at once or render just one element in your view script.
 
 ## Install
 
