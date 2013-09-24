@@ -4,6 +4,7 @@ Form
 With this package you can:
 
 * Generate forms using a fluent interface
+* Present data from other models as choice fields like select lists, radio buttons or checkboxes.
 
 ## Install
 
