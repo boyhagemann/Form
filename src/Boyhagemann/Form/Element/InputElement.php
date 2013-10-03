@@ -149,6 +149,22 @@ class InputElement implements ElementInterface
 	}
 
 	/**
+	 * @param bool $disabled
+	 * @return $this
+	 */
+	public function disabled($disabled = true)
+	{
+		if($disabled) {
+			$this->attributes['disabled'] = 'disabled';
+		}
+		elseif(isset($this->attributes['disabled'])) {
+			unset($this->attributes['disabled']);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @param $name
 	 * @param $value
 	 * @return $this
