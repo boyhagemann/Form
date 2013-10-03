@@ -2,7 +2,7 @@
 
 namespace Boyhagemann\Form\Element;
 
-class InputElement
+class InputElement implements ElementInterface
 {
 	/**
 	 * @var string

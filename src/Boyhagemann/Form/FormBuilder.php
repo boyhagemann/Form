@@ -85,12 +85,12 @@ class FormBuilder
         
         foreach ($this->elements as $name => $element) {
             
-            Event::fire('formBuilder.buildElement.pre', compact('name', 'element', 'factory', 'reference'));
+            Event::fire('formBuilder.buildElement.pre', compact('element', 'factory', 'reference'));
 
 			$options = $element->getOptions() + array('attr' => $element->getAttributes());
             $this->factory->add($name, $element->getFormType(), $options);
 
-            Event::fire('formBuilder.buildElement.post', compact('name', 'element', 'factory', 'reference'));
+            Event::fire('formBuilder.buildElement.post', compact('element', 'factory', 'reference'));
             
         }
         
