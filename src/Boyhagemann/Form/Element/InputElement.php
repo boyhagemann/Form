@@ -55,6 +55,7 @@ class InputElement implements ElementInterface
 			'label' => $this->getOption('label'),
 			'size' => $this->getOption('max_length'),
 			'attr' => $this->attributes,
+			'options' => $this->options,
 		);
 	}
 
@@ -161,6 +162,26 @@ class InputElement implements ElementInterface
 			unset($this->attributes['disabled']);
 		}
 
+		return $this;
+	}
+
+	/**
+	 * @param string $description
+	 * @return $this
+	 */
+	public function help($description)
+	{
+		$this->attributes['help'] = $description;
+		return $this;
+	}
+
+	/**
+	 * @param string $description
+	 * @return $this
+	 */
+	public function placeholder($placeholder)
+	{
+		$this->attributes['placeholder'] = $placeholder;
 		return $this;
 	}
 

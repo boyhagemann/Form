@@ -11,7 +11,7 @@ Form::macro('render', function(FormInterface $form, Model $model = null) {
 
 	$view = $form->createView();
 
-        $options = array();
+    $options = array();
 	$options = array(
 		'url' => $view->vars['action'],
 		'class' => 'form-horizontal',
@@ -114,9 +114,10 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 		default: return;
 	}
 
+	$help = isset($attr['help']) ? sprintf('<p class="help-block">%s</p>', $attr['help']) : '';
 	$error = $errors ? $errors->first($name, '<span class="error">:message</span>') : '';
 
-	return sprintf('<div class="form-group">%s%s%s</div>', $formLabel, $formElement, $error);
+	return sprintf('<div class="form-group">%s%s%s%s</div>', $formLabel, $formElement, $help, $error);
 });
 
 
