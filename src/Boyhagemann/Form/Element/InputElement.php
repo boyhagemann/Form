@@ -44,6 +44,7 @@ class InputElement implements ElementInterface
 		$this->name = $name;
 		$this->formType = $formType;
 		$this->type = $type;
+		$this->options = $options;
 	}
 
 	public function toArray()

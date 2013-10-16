@@ -92,10 +92,10 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 			if($vars['expanded']) {
 
 				if($vars['multiple']) {
-					$formElement = Form::multiRadio($name, $choices, $value, $attr);
+					$formElement = Form::checkbox($name, 1, $value, $attr);
 				}
 				else {
-					$formElement = Form::checkbox($name, 1, $value, $attr);
+					$formElement = Form::multiRadio($name, $choices, $value, $attr);
 				}
 
 			}

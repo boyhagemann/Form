@@ -257,7 +257,7 @@ class FormBuilder
     {
         return $this->addElement(new CheckableElement($name, 'choice', 'radio', array(
 			'multiple' => false,
-			'expanded' => false,
+			'expanded' => true,
 		)));
     }
 
@@ -268,7 +268,7 @@ class FormBuilder
     public function checkbox($name)
     {
         return $this->addElement(new CheckableElement($name, 'choice', 'checkbox', array(
-			'multiple' => false,
+			'multiple' => true,
 			'expanded' => true,
 		)));
     }
