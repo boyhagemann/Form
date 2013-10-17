@@ -212,6 +212,16 @@ class InputElement implements ElementInterface
 	}
 
 	/**
+	 * @param bool $useModel
+	 * @return $this
+	 */
+	public function useModel($useModel = true)
+	{
+		$this->options['mapped'] = $useModel;
+		return $this;
+	}
+
+	/**
 	 * @param string $rules
 	 * @return $this
 	 */
