@@ -189,7 +189,7 @@ class FormBuilder
 
 
 
-        /**
+    /**
      * @param string $name
      * @return InputElement
      */
@@ -272,6 +272,15 @@ class FormBuilder
 			'expanded' => true,
 		)));
     }
+
+	/**
+	 * @param string $name
+	 * @return InputElement
+	 */
+	public function hidden($name)
+	{
+		return $this->addElement(new InputElement($name, 'hidden', 'hidden'));
+	}
 
     /**
      * @param $name

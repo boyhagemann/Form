@@ -59,7 +59,6 @@ Form::macro('renderFields', function(FormInterface $form, $errors = null) {
  */
 Form::macro('formRow', function(FormInterface $form, $errors = null) {
 
-	$html = '';
 	$view = $form->createView();
 	$vars = $view->vars;
 	$type = $form->getConfig()->getType()->getInnerType()->getName();
@@ -67,6 +66,10 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 	$label = $vars['label'] ?: $name;
     $value = $vars['data'];
 	$attr = $vars['attr'];
+
+	$mask = '<div class="form-group">%s%s%s%s</div>';
+	$help = isset($attr['help']) ? sprintf('<p class="help-block">%s</p>', $attr['help']) : '';
+	$error = $errors ? $errors->first($name, '<span class="error">:message</span>') : '';
 
 	$formLabel = Form::label($name, $label);
 
@@ -76,11 +79,15 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 		case 'percent':
 		case 'text':
 			$formElement = Form::text($name, $value, $attr);
-			break;
+			return sprintf($mask, $formLabel, $formElement, $help, $error);
 
 		case 'textarea':
 			$formElement = Form::textarea($name, $value, $attr);
-			break;
+			return sprintf($mask, $formLabel, $formElement, $help, $error);
+
+		case 'hidden':
+			$formElement = Form::hidden($name, $value, $attr);
+			return sprintf('%s%s', $formElement, $error);
 
 		case 'choice':
 
@@ -109,15 +116,10 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
 				}
 
 			}
-			break;
 
-		default: return;
+			return sprintf($mask, $formLabel, $formElement, $help, $error);
 	}
 
-	$help = isset($attr['help']) ? sprintf('<p class="help-block">%s</p>', $attr['help']) : '';
-	$error = $errors ? $errors->first($name, '<span class="error">:message</span>') : '';
-
-	return sprintf('<div class="form-group">%s%s%s%s</div>', $formLabel, $formElement, $help, $error);
 });
 
 
