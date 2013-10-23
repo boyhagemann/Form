@@ -14,9 +14,4 @@ class CheckableElement extends InputElement
 		return $this;
 	}
 
-	public function value($value)
-	{
-		return parent::value( (array) $value);
-	}
-
 }
