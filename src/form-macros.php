@@ -11,11 +11,13 @@ Form::macro('render', function(FormInterface $form, Model $model = null) {
 
 	$view = $form->createView();
 
-    $options = array();
 	$options = array(
-		'url' => $view->vars['action'],
 		'class' => 'form-horizontal',
 	);
+
+	if($view->vars['action']) {
+		$options['url'] = $view->vars['action'];
+	}
 
 	if($model) {
 		$html = Form::model($model, $options);
