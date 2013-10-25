@@ -41,7 +41,7 @@ class ModelElement extends CheckableElement
      * @return $this
      */
     public function value($value)
-    {        
+    {
         if (is_array($value)) {
             $checked = array();
             $key = $this->key ? $this->key : 'id';

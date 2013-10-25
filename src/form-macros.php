@@ -132,16 +132,15 @@ Form::macro('formRow', function(FormInterface $form, $errors = null) {
  */
 Form::macro('multiCheckbox', function ($name, $multiOptions, Array $defaults = null) {
 
-	$name .= '[]';
+	$name .= '[id][]';
 	$inputs = array();
 
 	foreach ($multiOptions as $key => $value) {
 
-		$default = is_array($defaults) && in_array($key, $defaults) ? $key : null;
-
+		$checked = is_array($defaults) && in_array($key, $defaults) ? true : false;
 		$inputName = sprintf('%s[%s]', $name, $key);
 		$inputs[]  =
-			Form::checkbox($name, $key, $default, array(
+			Form::checkbox($name, $key, $checked, array(
 				'id' => $inputName,
 			)) .
 			Form::label($inputName, $value);
