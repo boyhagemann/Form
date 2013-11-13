@@ -24,19 +24,19 @@ class FormServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->package('form', 'form');
+        $this->package('boyhagemann/form');
                 
-        App::bind('Symfony\Component\Form\FormBuilder', function($app) {
-            $csrf = new DefaultCsrfProvider('change this token');
-            $translator_builder = new TranslatorBuilder();
-            $translator_builder->setLocale('nl_NL'); // Uncomment if you want a non-english locale
-
-            $builder = new Builder();
-            $builder->setCsrfProvider($csrf);
-            $builder->setTranslator($translator_builder->build());
-
-            return $builder->buildFormFactory()->createBuilder();
-        });
+//        App::bind('Symfony\Component\Form\FormBuilder', function($app) {
+//            $csrf = new DefaultCsrfProvider('change this token');
+//            $translator_builder = new TranslatorBuilder();
+//            $translator_builder->setLocale('nl_NL'); // Uncomment if you want a non-english locale
+//
+//            $builder = new Builder();
+//            $builder->setCsrfProvider($csrf);
+//            $builder->setTranslator($translator_builder->build());
+//
+//            return $builder->buildFormFactory()->createBuilder();
+//        });
     }
 
     public function boot()
@@ -52,7 +52,7 @@ class FormServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array();
+        return array('form');
     }
 
 }

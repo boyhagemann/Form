@@ -2,200 +2,105 @@
 
 namespace Boyhagemann\Form\Element;
 
-use App;
+use Illuminate\Database\Eloquent\Model as Eloquent;
+use App, Closure;
 
-class ModelElement extends CheckableElement
+abstract class ModelElement extends AbstractElement implements Type\Choice
 {
-    /**
-     * @var string|\Illuminate\Database\Eloquent\Model
-     */
-    protected $model;
-    protected $key;
-    protected $field;
-    protected $alias;
-    protected $blank;
-    protected $callback;
+	protected $model;
+	protected $key = 'id';
+	protected $field = 'title';
+	protected $before;
+	protected $after;
+	protected $choices = array();
+
+	/**
+	 * @param string $field
+	 * @return $this
+	 */
+	public function field($field)
+	{
+		$this->field = $field;
+		return $this;
+	}
+
+	/**
+	 * @param string $key
+	 * @return $this
+	 */
+	public function key($key)
+	{
+		$this->key = $key;
+		return $this;
+	}
+
+	/**
+	 * @param string|Eloquent $model
+	 * @return $this
+	 */
+	public function model($model)
+	{
+		$this->model = $model;
+		return $this;
+	}
+
+	/**
+	 * @param array $choices
+	 * @return $this
+	 */
+	public function choices($choices)
+	{
+		$this->choices = $choices;
+		return $this;
+	}
+
+	/**
+	 * @param callable $before
+	 * @return $this
+	 */
+	public function before(Closure $before)
+	{
+		$this->before = $before;
+		return $this;
+	}
+
+
+	/**
+	 * @param callable $after
+	 * @return $this
+	 */
+	public function after(Closure $after)
+	{
+		$this->after = $after;
+		return $this;
+	}
 
 	/**
 	 * @return array
 	 */
-	public function toArray()
+	public function getChoices()
 	{
-		$model = $this->model;
-		if(is_object($model)) {
-			$model = get_class($model);
+		if($this->choices) {
+			return $this->choices;
 		}
 
-		return parent::toArray() + array(
-			'model' => $model,
-            'alias' => $this>alias,
-			'key' => $this->key,
-			'field' => $this->field,
-			'blank' => $this->blank,
-		);
-	}
-
-    /**
-     * 
-     * @param mixed $value
-     * @return $this
-     */
-    public function value($value)
-    {
-        if (is_array($value)) {
-            $checked = array();
-            $key = $this->key ? $this->key : 'id';
-            foreach ($value as $data) {
-                $checked[] = $data[$key];
-            }
-            return parent::value($checked);
-        }
-        else {
-            return parent::value($value);
-        }
-    }
-
-    /**
-     * @param $model
-     * @return $this
-     */
-    public function model($model)
-    {
-        $this->model = $model;
-        return $this;
-    }
-    
-    /**
-     * 
-     * @return string|Model
-
-     */
-    public function getModel()
-    {
-        return $this->model;
-    }
-
-    /**
-     * @param $key
-     * @return $this
-     */
-    public function key($key)
-    {
-        $this->key = $key;
-        return $this;
-    }
-
-    /**
-     * @param $field
-     * @return $this
-     */
-    public function field($field)
-    {
-        $this->field = $field;
-        return $this;
-    }
-    
-    /**
-     * @param $alias
-     * @return $this
-     */
-    public function alias($alias)
-    {
-        $this->alias = $alias;
-        return $this;
-    }
-
-	/**
-	 * @param $blank
-	 * @return $this
-	 */
-	public function blank($blank)
-	{
-		$this->blank = $blank;
-		return $this;
-	}
-    
-    /**
-     * 
-     * @return string
-     */
-    public function getAlias()
-    {
-        if(!$this->alias) {
-            return $this->name;
-        }
-        
-        return $this->alias;
-    }
-
-    /**
-     * @param Closure $callback
-     */
-    public function query(Closure $callback)
-    {
-        $this->callback = $callback;
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions()
-    {
-        if (!$this->hasOption('choices')) {
-            $this->options['choices'] = $this->buildChoices();
-        }
-
-        return parent::getOptions();
-    }
-
-    protected function buildChoices()
-    {
-		if(!$this->model) {
-			return;
+		if($this->model instanceof Eloquent) {
+			$qb = $this->model->query();
+		}
+		else {
+			$qb = App::make($this->model)->query();
 		}
 
-        if (is_string($this->model)) {
-            $this->model = App::make($this->model);
-        }
+		if($this->before) {
+			call_user_func_array($this->before, array($qb, $this));
+		}
 
-        $q = $this->model->query();
+		$this->choices = $qb->lists($this->field, $this->key);
 
-        if ($this->callback) {
-            $this->callback($q);
-        }
+		if($this->after) {
+			call_user_func_array($this->after, array($qb, $this));
+		}
 
-        $key = $this->key ? $this->key : 'id';
-        $field = $this->field ? $this->field : "title";
-
-
-		$choices = $this->blank ? array('' => $this->blank) : array();
-		$choices += $q->lists($field, $key);
-
-		return $choices;
-    }
-
-    /**
-     * 
-     * @param string $name
-     * @return bool
-     */
-    public function hasOption($name)
-    {
-        return isset($this->options[$name]);
-    }
-
-    /**
-     * 
-     * @param string $name
-     * @return mixed
-     */
-    public function getOption($name)
-    {
-        if (!$this->hasOption($name)) {
-            return;
-        }
-
-        return $this->options[$name];
-    }
-
+		return $this->choices;
+	}
 }

@@ -2,12 +2,18 @@
 
 namespace Boyhagemann\Form;
 
-use Symfony\Component\Form\FormBuilder as FormFactory;
-use Boyhagemann\Form\Element\InputElement;
-use Boyhagemann\Form\Element\CheckableElement;
-use Boyhagemann\Form\Element\ModelElement;
-use Event;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\MessageBag;
+use Boyhagemann\Form\Element;
+use View, Form, Event, Session;
 
+/**
+ * Class FormBuilder2
+ *
+ * @package Boyhagemann\Form
+ *
+ * @method text Boyhagemann\Form\Element\Text
+ */
 class FormBuilder
 {
 	/**
@@ -15,316 +21,294 @@ class FormBuilder
 	 */
 	protected $name;
 
-    /**
-     * @var FormFactory
-     */
-    protected $factory;
-    
-    protected $elements = array();
-
-    /**
-     * @param FormFactory $factory
-     */
-    public function __construct()
-    {
-        $this->factory = \App::make('Symfony\Component\Form\FormBuilder');
-    }
+	/**
+	 * @var array
+	 */
+	protected $elements = array();
 
 	/**
-	 * @param string $name
+	 * @var array
+	 */
+	protected $options = array();
+
+	/**
+	 * @var array
+	 */
+	protected $attributes = array(
+		'role' => 'form',
+		'class' => 'form-horizontal',
+	);
+
+	/**
+	 * @var string|Closure
+	 */
+	protected $view = 'form::form';
+
+	/**
+	 * @var FormElementContainer
+	 */
+	protected $container;
+
+	/**
+	 * @var array
+	 */
+	protected $defaults = array();
+
+	/**
+	 * @var Eloquent
+	 */
+	protected $model;
+
+	/**
+	 * @var MessageBag
+	 */
+	protected $errors;
+
+	/**
+	 * @param FormElementContainer $container
+	 */
+	public function __construct(FormElementContainer $container)
+	{
+		$this->container = $container;
+	}
+
+	/**
+	 * @param $view
 	 * @return $this
 	 */
-	public function setName($name)
+	public function view($view)
 	{
-		$this->name = $name;
+		$this->view = $view;
 		return $this;
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function getName()
+	public function getElements()
 	{
-		return $this->name;
+		return $this->elements;
 	}
 
 	/**
 	 * @param $name
-	 * @return InputElement
+	 * @return Element
 	 */
 	public function get($name)
-    {
-        return $this->elements[$name];
-    }
-
-    /**
-     * 
-     * @param array $values
-     * @return $this
-     */
-    public function defaults(Array $values = array())
-    {
-        foreach ($this->elements as $name => $element) {
-            if (isset($values[$name])) {
-                $element->value($values[$name]);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return \Symfony\Component\Form\Form
-     */
-    public function build()
-    {
-        $reference = $this;
-        $factory = $this->factory;
-        
-        Event::fire('formBuilder.build.pre', compact('reference'));
-        
-        foreach ($this->elements as $name => $element) {
-            
-            Event::fire('formBuilder.buildElement.pre', compact('element', 'reference'));
-
-			$options = $element->getOptions() + array('attr' => $element->getAttributes());
-            $this->factory->add($name, $element->getFormType(), $options);
-
-            Event::fire('formBuilder.buildElement.post', compact('element', 'reference'));
-            
-        }
-        
-        Event::fire('formBuilder.build.post', compact('reference'));
-
-        return $this->getFactory()->getForm();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFactory()
-    {
-        return $this->factory;
-    }
-
-    /**
-     * @param       $element
-     * @return InputElement
-     */
-    protected function addElement(InputElement $element)
-    {
-        $reference = $this;
-		$name = $element->getName();
-        
-        Event::fire('formBuilder.addElement.pre', compact('name', 'element', 'reference'));
-
-        $this->elements[$name] = $element;
-        
-        Event::fire('formBuilder.addElement.post', compact('name', 'element', 'reference'));
-        
-        return $element;
-    }
-    
-    /**
-     * 
-     * @return array
-     */
-    public function getElements()
-    {
-        return $this->elements;
-    }
-
-    /**
-	 * @return array
-	 */
-	public function toArray()
 	{
-		$config = array();
-
-		foreach($this->elements as $element) {
-			$config[] = $element->toArray();
-		}
-
-		return $config;
+		return $this->elements[$name];
 	}
 
 	/**
-	 * @param array $config
+	 * @return array
+	 */
+	public function getOptions()
+	{
+		return $this->options;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAttributes()
+	{
+		return $this->attributes;
+	}
+
+	/**
+	 * @return Eloquent
+	 */
+	public function getModel()
+	{
+		return $this->model;
+	}
+
+	/**
+	 * @param array $defaults
 	 * @return $this
 	 */
-	public function fromArray(Array $config)
+	public function defaults(Array $defaults)
 	{
-		foreach($config as $data) {
+		$this->defaults = $defaults;
+		return $this;
+	}
 
-			if(!isset($data['type'])) {
-				continue;
-			}
+	/**
+	 * @param string $route
+	 * @param array  $params
+	 * @return $this
+	 */
+	public function route($route, Array $params = array())
+	{
+		$this->options['route'] = array($route, $params);
+		return $this;
+	}
 
-			if(!isset($data['name'])) {
-				continue;
-			}
+	/**
+	 * @param string $url
+	 * @return $this
+	 */
+	public function url($url)
+	{
+		$this->options['url'] = $url;
+		return $this;
+	}
 
-			$type = $data['type'];
-			$name = $data['name'];
+	/**
+	 * @param Model $model
+	 * @return $this
+	 */
+	public function model(Model $model)
+	{
+		$this->model = $model;
+		return $this;
+	}
 
-			unset($data['type']);
-			unset($data['name']);
+	/**
+	 * @param string $method
+	 * @return $this
+	 */
+	public function method($method)
+	{
+		$this->options['method'] = $method;
+		return $this;
+	}
+	/**
+	 * @return string
+	 */
+	public function build()
+	{
+		Event::fire('form.formBuilder.build.before', array($this));
 
-			$element = $this->{$type}($name);
+		$this->setDefaults();
+		$this->validate();
 
-			foreach($data as $key => $value) {
-				$element->{$key}($value);
-			}
+		if($this->view instanceof Closure) {
+			return call_user_func_array($this->view, array($this));
+		}
 
+		$response = View::make($this->view, array('fb' => $this));
+
+		Event::fire('form.formBuilder.build.after', array($response, $this));
+
+		return $response;
+	}
+
+	/**
+	 * @param Element $element
+	 * @return string|View
+	 */
+	public function buildElement(Element $element)
+	{
+		Event::fire('form.formBuilder.buildElement.before', array($element, $this));
+
+		$view = $element->getView();
+
+		$state = '';
+		$state .= $element->getValidationState() ? ' has-' . $element->getValidationState() : '';
+		$state .= $element->isRequired() ? ' is-required' : '';
+
+		$response = null;
+
+		if($view instanceof Closure) {
+			$response = call_user_func_array($view, array($element));
+		}
+		elseif($view) {
+			$response = View::make($view, compact('element', 'state'));
+		}
+
+		Event::fire('form.formBuilder.buildElement.after', array($response, $element, $this));
+
+		return $response;
+	}
+
+	/**
+	 * @param MessageBag $errors
+	 * @return $this
+	 */
+	public function errors(MessageBag $errors = null)
+	{
+		if($errors) {
+			$this->errors = $errors;
 		}
 
 		return $this;
 	}
 
-        public function action($action)
-        {
-            $this->factory->setAction($action);
-        }
+	/**
+	 * @param Validator $validator
+	 */
+	protected function validate()
+	{
+		if(!$this->errors && Session::get('errors')) {
+			$this->errors = Session::get('errors');
+		}
 
+		if(!$this->errors) {
+			return $this;
+		}
 
+		foreach($this->getElements() as $name => $element) {
+			$error = $this->errors->first($name);
+			if($error) {
+				$element->hasError()->help($error);
+			}
+		}
+	}
 
+	/**
+	 *
+	 */
+	protected function setDefaults()
+	{
+		// Set the default values
+		foreach($this->defaults as $name => $element) {
+			if(isset($this->elements[$name])) {
+				$this->get($name)->value($element);
+			}
+		}
+	}
 
-    /**
-     * @param string $name
-     * @return InputElement
-     */
-    public function text($name)
-    {
-		return $this->addElement(new InputElement($name, 'text', 'text'));
-    }
+	/**
+	 * @return array
+	 */
+	public function getRules()
+	{
+		$rules = array();
+		foreach($this->getElements() as $name => $element) {
+			if($element->getRules()) {
+				$rules[$name] = $element->getRules();
+			}
+		}
 
-    /**
-     * @param $name
-     * @return InputElement
-     */
-    public function textarea($name)
-    {
-        return $this->addElement(new InputElement($name, 'textarea', 'textarea'));
-    }
-
-    /**
-     * @param $name
-     * @return InputElement
-     */
-    public function integer($name)
-    {
-        return $this->addElement(new InputElement($name, 'integer', 'integer'));
-    }
-
-    /**
-     * @param $name
-     * @return InputElement
-     */
-    public function percentage($name)
-    {
-        return $this->addElement(new InputElement($name, 'percent', 'percentage'));
-    }
-
-    /**
-     * @param $name
-     * @return CheckableElement
-     */
-    public function select($name)
-    {
-        return $this->addElement(new CheckableElement($name, 'choice', 'select', array(
-                    'multiple' => false,
-                    'expanded' => false,
-        )));
-    }
-
-    /**
-     * @param $name
-     * @return CheckableElement
-     */
-    public function multiselect($name)
-    {
-        return $this->addElement(new CheckableElement($name, 'choice', 'multiselect', array(
-			'multiple' => true,
-			'expanded' => false,
-		)));
-    }
-
-    /**
-     * @param $name
-     * @return CheckableElement
-     */
-    public function radio($name)
-    {
-        return $this->addElement(new CheckableElement($name, 'choice', 'radio', array(
-			'multiple' => false,
-			'expanded' => true,
-		)));
-    }
-
-    /**
-     * @param $name
-     * @return CheckableElement
-     */
-    public function checkbox($name)
-    {
-        return $this->addElement(new CheckableElement($name, 'choice', 'checkbox', array(
-			'multiple' => true,
-			'expanded' => true,
-		)));
-    }
+		return $rules;
+	}
 
 	/**
 	 * @param string $name
-	 * @return InputElement
+	 * @param string|Element $element
 	 */
-	public function hidden($name)
+	public function register($name, $element)
 	{
-		return $this->addElement(new InputElement($name, 'hidden', 'hidden'));
+		$this->container->bind($name, $element);
 	}
 
-    /**
-     * @param $name
-     * @return InputElement
-     */
-    public function submit($name)
-    {
-        return $this->addElement(new InputElement($name, 'input', 'submit', 'submit'));
-    }
+	/**
+	 * @param $name
+	 * @param $arguments
+	 * @return mixed
+	 */
+	public function __call($alias, $arguments)
+	{
+		$element = $this->container->make($alias);
+		$name = current($arguments);
 
-    /**
-     * @param $name
-     * @return ModelElement
-     */
-    public function modelSelect($name)
-    {
-        return $this->addElement(new ModelElement($name, 'choice', 'modelSelect', array(
-			'multiple' => false,
-			'expanded' => false,
-		)));
-    }
+		if(method_exists($element, 'name')) {
+			$element->name($name);
+		}
 
-    /**
-     * @param $name
-     * @return ModelElement
-     */
-    public function modelRadio($name)
-    {
-        return $this->addElement(new ModelElement($name, 'choice', 'modelRadio', array(
-			'multiple' => true,
-			'expanded' => true,
-		)));
-    }
+		$this->elements[$name] = $element;
 
-    /**
-     * @param $name
-     * @return ModelElement
-     */
-    public function modelCheckbox($name)
-    {
-        return $this->addElement(new ModelElement($name, 'choice', 'modelCheckbox', array(
-			'multiple' => true,
-			'expanded' => false,
-		)));
-    }
-
+		return $element;
+	}
 }
