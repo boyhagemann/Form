@@ -31,7 +31,7 @@ class FormServiceProvider extends ServiceProvider
     public function boot()
     {
 		// Add some default elements to the container
-		App::singleton('Boyhagemann\Form\FormElementContainer', function($app) {
+		$this->app->singleton('Boyhagemann\Form\FormElementContainer', function($app) {
 
 			$container = new FormElementContainer;
 			
@@ -49,7 +49,8 @@ class FormServiceProvider extends ServiceProvider
 		});
 
 		// Create an alias for the formbuilder class
-		App::bind('formbuilder', 'Boyhagemann\Form\FormBuilder');
+		$this->app->bind('formbuilder', 'Boyhagemann\Form\FormBuilder');
+                
     }
 
     /**

@@ -13,8 +13,9 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 	protected $before;
 	protected $after;
 	protected $choices = array();
+        protected $alias;
 
-	/**
+        /**
 	 * @param string $field
 	 * @return $this
 	 */
@@ -41,6 +42,16 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 	public function model($model)
 	{
 		$this->model = $model;
+		return $this;
+	}
+
+	/**
+	 * @param string $alias
+	 * @return $this
+	 */
+	public function alias($alias)
+	{
+		$this->alias = $alias;
 		return $this;
 	}
 

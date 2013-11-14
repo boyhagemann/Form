@@ -99,9 +99,23 @@ class FormBuilder
 	 */
 	public function get($name)
 	{
-		return $this->elements[$name];
+            if(!$this->has($name)) {
+                return;
+            }
+            
+            return $this->elements[$name];
 	}
 
+	/**
+	 * @param $name
+	 * @return Element
+	 */
+	public function has($name)
+	{
+            return isset($this->elements[$name]);
+	}
+
+        
 	/**
 	 * @return array
 	 */
@@ -109,8 +123,22 @@ class FormBuilder
 	{
 		return $this->options;
 	}
+        
+        /**
+         * 
+         * @param string $name
+         * @return mixed
+         */
+        public function getOption($name)
+        {
+            if(!isset($this->options[$name])) {
+                return;
+            }
+            
+            return $this->options[$name];
+        }
 
-	/**
+        /**
 	 * @return array
 	 */
 	public function getAttributes()
@@ -138,13 +166,20 @@ class FormBuilder
 
 	/**
 	 * @param string $route
-	 * @param array  $params
+	 * @param mixed  $params
 	 * @return $this
 	 */
-	public function route($route, Array $params = array())
+	public function route($route, $params = array())
 	{
+            if($params) {
+		$this->options['method'] = 'put';
 		$this->options['route'] = array($route, $params);
-		return $this;
+            }
+            else {
+		$this->options['route'] = $route;
+            }
+		
+            return $this;
 	}
 
 	/**
