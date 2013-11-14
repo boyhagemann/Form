@@ -206,6 +206,14 @@ abstract class AbstractElement implements Element
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getOptions()
+	{
+		return $this->options;
+	}
+
+	/**
 	 * @return string|Closure
 	 */
 	public function getView()

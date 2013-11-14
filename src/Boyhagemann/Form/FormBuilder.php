@@ -251,7 +251,7 @@ class FormBuilder
 		if($view instanceof Closure) {
 			$response = call_user_func_array($view, array($element));
 		}
-		elseif($view) {
+		elseif(View::exists($view)) {
 			$response = View::make($view, compact('element', 'state'));
 		}
 

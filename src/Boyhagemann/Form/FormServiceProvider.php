@@ -36,6 +36,7 @@ class FormServiceProvider extends ServiceProvider
 			$container = new FormElementContainer;
 			
 			$container->bind('text', 			'Boyhagemann\Form\Element\Text');
+			$container->bind('hidden', 			'Boyhagemann\Form\Element\Hidden');
 			$container->bind('password', 		'Boyhagemann\Form\Element\Password');
 			$container->bind('textarea', 		'Boyhagemann\Form\Element\Textarea');
 			$container->bind('select', 			'Boyhagemann\Form\Element\Select');
