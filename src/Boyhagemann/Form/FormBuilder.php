@@ -165,24 +165,23 @@ class FormBuilder
 	}
 
 	/**
-	 * @param string $route
-	 * @param mixed  $params
-	 * @return $this
-	 */
-	public function route($route, $params = array())
-	{
-            if($params) {
-		$this->options['method'] = 'put';
-		$this->options['route'] = array($route, $params);
-            }
-            else {
-		$this->options['route'] = $route;
-            }
-		
-            return $this;
-	}
+     * @param string $route
+     * @param mixed  $params
+     * @return $this
+     */
+    public function route($route, $params = array())
+    {
+        if ($params) {
+            $this->options['route'] = array($route, $params);
+        }
+        else {
+            $this->options['route'] = $route;
+        }
 
-	/**
+        return $this;
+    }
+
+    /**
 	 * @param string $url
 	 * @return $this
 	 */
@@ -208,7 +207,7 @@ class FormBuilder
 	 */
 	public function method($method)
 	{
-		$this->options['method'] = $method;
+		$this->attributes['method'] = $method;
 		return $this;
 	}
 	/**
@@ -240,19 +239,17 @@ class FormBuilder
 	{
 		Event::fire('form.formBuilder.buildElement.before', array($element, $this));
 
-		$view = $element->getView();
+		$response = $element->getView();
 
 		$state = '';
 		$state .= $element->getValidationState() ? ' has-' . $element->getValidationState() : '';
 		$state .= $element->isRequired() ? ' is-required' : '';
 
-		$response = null;
-
-		if($view instanceof Closure) {
-			$response = call_user_func_array($view, array($element));
+		if($response instanceof Closure) {
+			$response = call_user_func_array($response, array($element));
 		}
-		elseif(View::exists($view)) {
-			$response = View::make($view, compact('element', 'state'));
+		elseif(View::exists($response)) {
+			$response = View::make($response, compact('element', 'state'));
 		}
 
 		Event::fire('form.formBuilder.buildElement.after', array($response, $element, $this));
