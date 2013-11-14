@@ -25,24 +25,30 @@ class FormServiceProvider extends ServiceProvider
     public function register()
     {
         $this->package('boyhagemann/form');
-                
-//        App::bind('Symfony\Component\Form\FormBuilder', function($app) {
-//            $csrf = new DefaultCsrfProvider('change this token');
-//            $translator_builder = new TranslatorBuilder();
-//            $translator_builder->setLocale('nl_NL'); // Uncomment if you want a non-english locale
-//
-//            $builder = new Builder();
-//            $builder->setCsrfProvider($csrf);
-//            $builder->setTranslator($translator_builder->build());
-//
-//            return $builder->buildFormFactory()->createBuilder();
-//        });
+
     }
 
     public function boot()
     {
+		// Add some default elements to the container
+		App::singleton('Boyhagemann\Form\FormElementContainer', function($app) {
 
-        require_once(__DIR__ . '/../../form-macros.php');
+			$container = new FormElementContainer;
+			$container->bind('text', 'Boyhagemann\Form\Element\Text');
+			$container->bind('password', 'Boyhagemann\Form\Element\Password');
+			$container->bind('textarea', 'Boyhagemann\Form\Element\Textarea');
+			$container->bind('select', 'Boyhagemann\Form\Element\Select');
+			$container->bind('modelSelect', 'Boyhagemann\Form\Element\ModelSelect');
+			$container->bind('checkbox', 'Boyhagemann\Form\Element\Checkbox');
+			$container->bind('modelCheckbox', 'Boyhagemann\Form\Element\ModelCheckbox');
+			$container->bind('radio', 'Boyhagemann\Form\Element\Radio');
+			$container->bind('modelRadio', 'Boyhagemann\Form\Element\ModelRadio');
+			
+			return $container;
+		});
+
+		// Create an alias for the formbuilder class
+		App::bind('formbuilder', 'Boyhagemann\Form\FormBuilder');
     }
 
     /**

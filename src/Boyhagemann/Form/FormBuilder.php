@@ -2,25 +2,18 @@
 
 namespace Boyhagemann\Form;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\MessageBag;
 use Boyhagemann\Form\Element;
 use View, Form, Event, Session;
 
 /**
- * Class FormBuilder2
+ * Class FormBuilder
  *
  * @package Boyhagemann\Form
- *
- * @method text Boyhagemann\Form\Element\Text
  */
 class FormBuilder
 {
-	/**
-	 * @var string
-	 */
-	protected $name;
-
 	/**
 	 * @var array
 	 */
@@ -70,6 +63,16 @@ class FormBuilder
 	public function __construct(FormElementContainer $container)
 	{
 		$this->container = $container;
+	}
+
+	/**
+	 * @param string $name
+	 * @return $this
+	 */
+	public function name($name)
+	{
+		$this->options['name'] = $name;
+		return $this;
 	}
 
 	/**
@@ -155,10 +158,10 @@ class FormBuilder
 	}
 
 	/**
-	 * @param Model $model
+	 * @param Eloquent $model
 	 * @return $this
 	 */
-	public function model(Model $model)
+	public function model(Eloquent $model)
 	{
 		$this->model = $model;
 		return $this;
@@ -290,11 +293,31 @@ class FormBuilder
 	 */
 	public function register($name, $element)
 	{
-		$this->container->bind($name, $element);
+		$this->container->bindIf($name, $element);
 	}
 
 	/**
+	 * @param $alias
 	 * @param $name
+	 * @param $class
+	 * @return Element
+	 */
+	public function element($alias, $name, $class = null)
+	{
+		if($class) {
+			$this->register($alias, $class);
+		}
+
+		$element = $this->container->make($alias);
+		$element->name($name);
+
+		$this->elements[$name] = $element;
+
+		return $element;
+	}
+
+	/**
+	 * @param $alias
 	 * @param $arguments
 	 * @return mixed
 	 */
@@ -303,12 +326,6 @@ class FormBuilder
 		$element = $this->container->make($alias);
 		$name = current($arguments);
 
-		if(method_exists($element, 'name')) {
-			$element->name($name);
-		}
-
-		$this->elements[$name] = $element;
-
-		return $element;
+		return $this->element($alias, $name);
 	}
 }
