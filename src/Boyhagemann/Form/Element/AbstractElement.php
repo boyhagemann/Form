@@ -13,6 +13,7 @@ abstract class AbstractElement implements Element
 	protected $disabled = false;
 	protected $help;
 	protected $rules;
+	protected $view;
 	protected $validationState;
 	protected $attributes = array(
 		'class' => 'form-control',
