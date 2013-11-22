@@ -159,6 +159,15 @@ abstract class AbstractElement implements Element
 	}
 
 	/**
+	 * @param string $rule
+	 * @return bool
+	 */
+	public function hasRule($rule)
+	{
+		return in_array($rule, $this->getRulesAsArray());
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getName()

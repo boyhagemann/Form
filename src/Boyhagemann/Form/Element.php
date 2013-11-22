@@ -28,6 +28,7 @@ interface Element
 	public function isRequired();
 	public function isDisabled();
 
+	public function hasRule($rule);
 	public function hasSuccess();
 	public function hasError();
 	public function hasWarning();
