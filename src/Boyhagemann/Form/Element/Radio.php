@@ -4,6 +4,7 @@ namespace Boyhagemann\Form\Element;
 
 class Radio extends AbstractElement implements Type\Choice
 {
+	protected $choices = array();
 	protected $view = 'form::element.radio';
 	protected $attributes = array();
 

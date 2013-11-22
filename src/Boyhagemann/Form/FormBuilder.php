@@ -115,6 +115,13 @@ class FormBuilder
             return isset($this->elements[$name]);
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->getOption('name');
+	}
         
 	/**
 	 * @return array
@@ -123,20 +130,20 @@ class FormBuilder
 	{
 		return $this->options;
 	}
-        
-        /**
-         * 
-         * @param string $name
-         * @return mixed
-         */
-        public function getOption($name)
-        {
-            if(!isset($this->options[$name])) {
-                return;
-            }
-            
-            return $this->options[$name];
-        }
+
+	/**
+	 *
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getOption($name)
+	{
+		if(!isset($this->options[$name])) {
+			return;
+		}
+
+		return $this->options[$name];
+	}
 
         /**
 	 * @return array

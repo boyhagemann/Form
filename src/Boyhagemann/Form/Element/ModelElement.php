@@ -13,7 +13,7 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 	protected $before;
 	protected $after;
 	protected $choices = array();
-        protected $alias;
+	protected $alias;
 
         /**
 	 * @param string $field

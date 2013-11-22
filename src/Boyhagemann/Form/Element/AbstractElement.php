@@ -14,7 +14,9 @@ abstract class AbstractElement implements Element
 	protected $help;
 	protected $rules;
 	protected $view;
+	protected $map = true;
 	protected $validationState;
+	protected $options = array();
 	protected $attributes = array(
 		'class' => 'form-control',
 	);
@@ -38,6 +40,7 @@ abstract class AbstractElement implements Element
 		$this->label = $label;
 		return $this;
 	}
+
 	/**
 	 * @param $value
 	 * @return $this
@@ -45,6 +48,16 @@ abstract class AbstractElement implements Element
 	public function value($value)
 	{
 		$this->value = $value;
+		return $this;
+	}
+
+	/**
+	 * @param bool $map
+	 * @return $this
+	 */
+	public function map($map = true)
+	{
+		$this->map = (bool) $map;
 		return $this;
 	}
 
@@ -87,6 +100,17 @@ abstract class AbstractElement implements Element
 	public function attr($attr, $value)
 	{
 		$this->attributes[$attr] = $value;
+		return $this;
+	}
+
+	/**
+	 * @param $option
+	 * @param $value
+	 * @return $this
+	 */
+	public function option($option, $value)
+	{
+		$this->options[$option] = $value;
 		return $this;
 	}
 
@@ -189,6 +213,15 @@ abstract class AbstractElement implements Element
 	{
 		return in_array('required', $this->getRulesAsArray());
 	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMapped()
+	{
+		return $this->map;
+	}
+
 
 	/**
 	 * @return bool

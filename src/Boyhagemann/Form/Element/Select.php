@@ -4,6 +4,7 @@ namespace Boyhagemann\Form\Element;
 
 class Select extends AbstractElement implements Type\Choice
 {
+	protected $choices = array();
 	protected $view = 'form::element.select';
 
 	/**

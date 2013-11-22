@@ -4,6 +4,7 @@ namespace Boyhagemann\Form\Element;
 
 class Checkbox extends AbstractElement implements Type\MultipleChoice
 {
+	protected $choices = array();
 	protected $view = 'form::element.checkboxes';
 	protected $value = array();
 	protected $attributes = array();
