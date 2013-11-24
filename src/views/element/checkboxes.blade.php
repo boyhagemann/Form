@@ -6,7 +6,7 @@
 	@endif
 	<div class="col-sm-10 col-lg-10">
 		@foreach($element->getChoices() as $key => $value)
-			<label class="choice">{{ Form::checkbox($element->getName(), $key, in_array($key, $element->getValue()), $element->getAttributes()) }} {{ $value }}</label>
+			<label class="choice">{{ Form::checkbox($element->getName() . '[]', $key, in_array($key, $element->getValue()), $element->getAttributes()) }} {{ $value }}</label>
 		@endforeach
 		@if($element->getHelp())
 		<span class="help-block">{{ $element->getHelp() }}</span>
