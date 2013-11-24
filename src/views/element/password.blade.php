@@ -5,7 +5,7 @@
 	<div class="col-lg-2"></div>
 	@endif
 	<div class="col-sm-10 col-lg-10">
-		{{ Form::password($element->getName(), $element->getValue(), $element->getAttributes()) }}
+		{{ Form::password($element->getName(), $element->getAttributes()) }}
 		@if($element->getHelp())
 		<span class="help-block">{{ $element->getHelp() }}</span>
 		@endif
