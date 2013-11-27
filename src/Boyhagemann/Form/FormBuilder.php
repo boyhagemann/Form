@@ -116,6 +116,20 @@ class FormBuilder
 	}
 
 	/**
+	 * @param string|Element $element
+	 * @return $this
+	 */
+	public function remove($element)
+	{
+		if($element instanceof Element) {
+			$element = $element->getName();
+		}
+
+		unset($this->elements[$element]);
+		return $this;
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getName()
