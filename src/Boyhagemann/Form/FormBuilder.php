@@ -28,8 +28,9 @@ class FormBuilder
 	 * @var array
 	 */
 	protected $attributes = array(
-		'role' => 'form',
-		'class' => 'form-horizontal',
+		'method' 	=> 'POST',
+		'role' 		=> 'form',
+		'class' 	=> 'form-horizontal',
 	);
 
 	/**
@@ -136,7 +137,31 @@ class FormBuilder
 	{
 		return $this->getOption('name');
 	}
-        
+
+	/**
+	 * @return string
+	 */
+	public function getRoute()
+	{
+		return $this->getOption('route');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUrl()
+	{
+		return $this->getOption('url');
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMethod()
+	{
+		return $this->getAttribute('method');
+	}
+
 	/**
 	 * @return array
 	 */
@@ -165,6 +190,20 @@ class FormBuilder
 	public function getAttributes()
 	{
 		return $this->attributes;
+	}
+
+	/**
+	 *
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getAttribute($name)
+	{
+		if(!isset($this->attributes[$name])) {
+			return;
+		}
+
+		return $this->attributes[$name];
 	}
 
 	/**
@@ -228,7 +267,7 @@ class FormBuilder
 	 */
 	public function method($method)
 	{
-		$this->attributes['method'] = $method;
+		$this->attributes['method'] = strtoupper($method);
 		return $this;
 	}
 	/**
