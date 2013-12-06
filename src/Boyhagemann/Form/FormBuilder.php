@@ -67,6 +67,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Set the name for the form
+	 *
 	 * @param string $name
 	 * @return $this
 	 */
@@ -77,7 +79,9 @@ class FormBuilder
 	}
 
 	/**
-	 * @param $view
+	 * Set the view path that is used for rendering the form
+	 *
+	 * @param string $view
 	 * @return $this
 	 */
 	public function view($view)
@@ -87,6 +91,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get all the form elements
+	 *
 	 * @return array
 	 */
 	public function getElements()
@@ -95,28 +101,34 @@ class FormBuilder
 	}
 
 	/**
-	 * @param $name
+	 * Get a specific form element by name
+	 *
+	 * @param string $name
 	 * @return Element
 	 */
 	public function get($name)
 	{
-            if(!$this->has($name)) {
-                return;
-            }
-            
-            return $this->elements[$name];
+		if(!$this->has($name)) {
+			return;
+		}
+
+		return $this->elements[$name];
 	}
 
 	/**
-	 * @param $name
+	 * Check if the form has a specific element
+	 *
+	 * @param string $name
 	 * @return Element
 	 */
 	public function has($name)
 	{
-            return isset($this->elements[$name]);
+		return isset($this->elements[$name]);
 	}
 
 	/**
+	 * Remove an element from the form
+	 *
 	 * @param string|Element $element
 	 * @return $this
 	 */
@@ -131,6 +143,9 @@ class FormBuilder
 	}
 
 	/**
+	 * Get the name of the form. This name is used as the
+	 * form name attribute
+	 *
 	 * @return string
 	 */
 	public function getName()
@@ -139,6 +154,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get the route that will be used in the form action attribute
+	 *
 	 * @return string
 	 */
 	public function getRoute()
@@ -147,6 +164,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get the url that will be used in the form action attribute
+	 *
 	 * @return string
 	 */
 	public function getUrl()
@@ -155,6 +174,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get the current form method
+	 *
 	 * @return string
 	 */
 	public function getMethod()
@@ -163,6 +184,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get all the form options
+	 *
 	 * @return array
 	 */
 	public function getOptions()
@@ -171,6 +194,7 @@ class FormBuilder
 	}
 
 	/**
+	 * Get a specific form option
 	 *
 	 * @param string $name
 	 * @return mixed
@@ -184,7 +208,9 @@ class FormBuilder
 		return $this->options[$name];
 	}
 
-        /**
+	/**
+	 * Get all the form attributes
+	 *
 	 * @return array
 	 */
 	public function getAttributes()
@@ -193,6 +219,7 @@ class FormBuilder
 	}
 
 	/**
+	 * Get a specific form attribute
 	 *
 	 * @param string $name
 	 * @return mixed
@@ -207,6 +234,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get the model object
+	 *
 	 * @return Eloquent
 	 */
 	public function getModel()
@@ -215,6 +244,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Set the defaults for each element
+	 *
 	 * @param array $defaults
 	 * @return $this
 	 */
@@ -225,6 +256,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Add a route to use as the form action attribute
+	 *
      * @param string $route
      * @param mixed  $params
      * @return $this
@@ -242,6 +275,8 @@ class FormBuilder
     }
 
     /**
+	 * Add a url to the form action attribute
+	 *
 	 * @param string $url
 	 * @return $this
 	 */
@@ -252,6 +287,9 @@ class FormBuilder
 	}
 
 	/**
+	 * Attach a model to the form. This will keep the form values and the
+	 * model in sync.
+	 *
 	 * @param Eloquent $model
 	 * @return $this
 	 */
@@ -262,6 +300,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Add the form method
+	 *
 	 * @param string $method
 	 * @return $this
 	 */
@@ -318,6 +358,9 @@ class FormBuilder
 	}
 
 	/**
+	 * Set a message bag of previously fetched errors, so the elements
+	 * will have a correct error help text for instance.
+	 *
 	 * @param MessageBag $errors
 	 * @return $this
 	 */
@@ -331,19 +374,30 @@ class FormBuilder
 	}
 
 	/**
+	 * Test if the form values are valid. It will validate each
+	 * element and add an error to that element if the validation
+	 * fails.
+	 *
 	 * @param Validator $validator
 	 */
 	protected function validate()
 	{
+		// Are there any errors in the session? And are there no errors
+		// set yet? Then use the errors in the session.
 		if(!$this->errors && Session::get('errors')) {
 			$this->errors = Session::get('errors');
 		}
 
+		// If there are no errors, then we don't have to do
+		// anything more.
 		if(!$this->errors) {
 			return $this;
 		}
 
+		// Add the errors to the elements
 		foreach($this->getElements() as $name => $element) {
+
+			// For now, we only use the first error
 			$error = $this->errors->first($name);
 			if($error) {
 				$element->hasError()->help($error);
@@ -352,6 +406,8 @@ class FormBuilder
 	}
 
 	/**
+	 * After all elements are added to the form, we can set the
+	 * default values we collected earlier.
 	 *
 	 */
 	protected function setDefaults()
@@ -365,6 +421,8 @@ class FormBuilder
 	}
 
 	/**
+	 * Get all the rules from all the elements
+	 *
 	 * @return array
 	 */
 	public function getRules()
@@ -380,6 +438,11 @@ class FormBuilder
 	}
 
 	/**
+	 * Register a new Boyhagemann\Form\Element interface to the element
+	 * container.
+	 *
+	 * If the element already exists, then this element will not be registered.
+	 *
 	 * @param string $name
 	 * @param string|Element $element
 	 */
@@ -389,26 +452,41 @@ class FormBuilder
 	}
 
 	/**
-	 * @param $alias
-	 * @param $name
-	 * @param $class
+	 * Add an element to the current instance of the FormBuilder.
+	 *
+	 * @param string $alias
+	 * @param string $name
+	 * @param string $class
 	 * @return Element
 	 */
 	public function element($alias, $name, $class = null)
 	{
+		// If the element is not registered yet, register it now
 		if($class) {
 			$this->register($alias, $class);
 		}
 
+		// Get the element instance from the container
 		$element = $this->container->make($alias);
 		$element->name($name);
 
+		// Add the element to the current FormBuilder instance
 		$this->elements[$name] = $element;
 
 		return $element;
 	}
 
 	/**
+	 * Try to match a method call to a registered element.
+	 *
+	 * An example would be:
+	 *
+	 *   $fb->text('title');
+	 *
+	 * This call will look for an element with the alias 'text'
+	 * and once found, it will add it to the current instance
+	 * of the FormBuilder.
+	 *
 	 * @param $alias
 	 * @param $arguments
 	 * @return mixed
