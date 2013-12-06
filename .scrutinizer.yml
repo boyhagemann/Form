@@ -3,9 +3,6 @@ inherit: true
 before_commands:
   - composer install --prefer-source --dev
 
-tools:
-    external_code_coverage: true
-
 filter:
     excluded_paths: [vendor/*, tests/*]
 
