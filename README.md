@@ -1,6 +1,8 @@
 Form
 ====
 
+[![Build Status](https://travis-ci.org/boyhagemann/Form.png?branch=master)](https://travis-ci.org/boyhagemann/Form)
+
 With this package you can:
 
 * Generate forms using a fluent interface
