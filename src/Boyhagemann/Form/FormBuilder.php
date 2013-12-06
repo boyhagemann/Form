@@ -2,10 +2,11 @@
 
 namespace Boyhagemann\Form;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\MessageBag;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Session\Store as Session;
 use Boyhagemann\Form\Element;
-use View, Form, Event, Session;
+use View, Form, StdClass;
 
 /**
  * Class FormBuilder
@@ -44,12 +45,21 @@ class FormBuilder
 	protected $container;
 
 	/**
+	 * @var Dispatcher
+	 */
+	protected $events;
+	/**
+	 * @var Session
+	 */
+	protected $session;
+
+	/**
 	 * @var array
 	 */
 	protected $defaults = array();
 
 	/**
-	 * @var Eloquent
+	 * @var StdClass
 	 */
 	protected $model;
 
@@ -60,10 +70,13 @@ class FormBuilder
 
 	/**
 	 * @param FormElementContainer $container
+	 * @param Dispatcher $events
 	 */
-	public function __construct(FormElementContainer $container)
+	public function __construct(FormElementContainer $container, Dispatcher $events, Session $session)
 	{
-		$this->container = $container;
+		$this->container 	= $container;
+		$this->events 		= $events;
+		$this->session 		= $session;
 	}
 
 	/**
@@ -88,16 +101,6 @@ class FormBuilder
 	{
 		$this->view = $view;
 		return $this;
-	}
-
-	/**
-	 * Get all the form elements
-	 *
-	 * @return array
-	 */
-	public function getElements()
-	{
-		return $this->elements;
 	}
 
 	/**
@@ -140,6 +143,38 @@ class FormBuilder
 
 		unset($this->elements[$element]);
 		return $this;
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed  $value
+	 * @return $this
+	 */
+	public function option($name, $value)
+	{
+		$this->options[$name] = $value;
+		return $this;
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed  $value
+	 * @return $this
+	 */
+	public function attr($name, $value)
+	{
+		$this->attributes[$name] = $value;
+		return $this;
+	}
+
+	/**
+	 * Get all the form elements
+	 *
+	 * @return array
+	 */
+	public function getElements()
+	{
+		return $this->elements;
 	}
 
 	/**
@@ -246,7 +281,7 @@ class FormBuilder
 	/**
 	 * Get the model object
 	 *
-	 * @return Eloquent
+	 * @return StdClass
 	 */
 	public function getModel()
 	{
@@ -300,10 +335,10 @@ class FormBuilder
 	 * Attach a model to the form. This will keep the form values and the
 	 * model in sync.
 	 *
-	 * @param Eloquent $model
+	 * @param StdClass $model
 	 * @return $this
 	 */
-	public function model(Eloquent $model)
+	public function model(StdClass $model)
 	{
 		$this->model = $model;
 		return $this;
@@ -325,7 +360,7 @@ class FormBuilder
 	 */
 	public function build()
 	{
-		Event::fire('form.formBuilder.build.before', array($this));
+		$this->events->fire('form.formBuilder.build.before', array($this));
 
 		$this->setDefaults();
 		$this->validate();
@@ -336,7 +371,7 @@ class FormBuilder
 
 		$response = View::make($this->view, array('fb' => $this));
 
-		Event::fire('form.formBuilder.build.after', array($response, $this));
+		$this->events->fire('form.formBuilder.build.after', array($response, $this));
 
 		return $response;
 	}
@@ -347,7 +382,7 @@ class FormBuilder
 	 */
 	public function buildElement(Element $element)
 	{
-		Event::fire('form.formBuilder.buildElement.before', array($element, $this));
+		$this->events->fire('form.formBuilder.buildElement.before', array($element, $this));
 
 		$response = $element->getView();
 
@@ -362,7 +397,7 @@ class FormBuilder
 			$response = View::make($response, compact('element', 'state'));
 		}
 
-		Event::fire('form.formBuilder.buildElement.after', array($response, $element, $this));
+		$this->events->fire('form.formBuilder.buildElement.after', array($response, $element, $this));
 
 		return $response;
 	}
@@ -394,8 +429,8 @@ class FormBuilder
 	{
 		// Are there any errors in the session? And are there no errors
 		// set yet? Then use the errors in the session.
-		if(!$this->errors && Session::get('errors')) {
-			$this->errors = Session::get('errors');
+		if(!$this->errors && $this->session->get('errors')) {
+			$this->errors = $this->session->get('errors');
 		}
 
 		// If there are no errors, then we don't have to do
@@ -455,10 +490,12 @@ class FormBuilder
 	 *
 	 * @param string $name
 	 * @param string|Element $element
+	 * @return $this
 	 */
 	public function register($name, $element)
 	{
 		$this->container->bindIf($name, $element);
+		return $this;
 	}
 
 	/**
