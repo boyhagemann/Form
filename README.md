@@ -3,6 +3,7 @@ Form
 
 [![Build Status](https://travis-ci.org/boyhagemann/Form.png?branch=master)](https://travis-ci.org/boyhagemann/Form)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/boyhagemann/Form/badges/quality-score.png?s=8103612755c7470eec131897dbc93d6c7236e0cb)](https://scrutinizer-ci.com/g/boyhagemann/Form/)
+[![Code Coverage](https://scrutinizer-ci.com/g/boyhagemann/Form/badges/coverage.png?s=ecb4b7677b38abd8279c89dfdf469c2fffdd12a4)](https://scrutinizer-ci.com/g/boyhagemann/Form/)
 
 With this package you can:
 
