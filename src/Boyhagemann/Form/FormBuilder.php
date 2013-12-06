@@ -143,6 +143,16 @@ class FormBuilder
 	}
 
 	/**
+	 * Get the IoC container that resolves all the form elements
+	 *
+	 * @return FormElementContainer
+	 */
+	public function getElementContainer()
+	{
+		return $this->container;
+	}
+
+	/**
 	 * Get the name of the form. This name is used as the
 	 * form name attribute
 	 *
