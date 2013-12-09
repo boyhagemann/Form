@@ -2,10 +2,10 @@
 
 namespace Boyhagemann\Form;
 
-use Illuminate\Events\Dispatcher;
-use Illuminate\Session\Store as Session;
-use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
+use Mockery;
 
 class FormBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,9 +16,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function setUp()
 	{
-		$session = new Session(new MockArraySessionStorage);
-
-		$this->fb = new FormBuilder(new FormElementContainer, new Dispatcher, $session);
+		$this->fb = new FormBuilder(new FormElementContainer);
 	}
 
 	public function testGetFormElementContainer()
@@ -229,12 +227,37 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame($this->fb, $this->fb->defaults(array('foo', 'bar')));
 	}
 
-//	public function testBuild()
-//	{
-//		View::shouldReceive('make')->once();
+	public function testBuild()
+	{
+//		$app = new \Illuminate\Container\Container;
+//		$app->bind('events', 'Illuminate\Events\Dispatcher');
+//		$app['config'] = array(
+//			'session.driver' => 'array',
+//			'view.paths' => array(),
+//		);
+//		$app['session'] = $app->share(function($app)
+//		{
+//			return new \Illuminate\Session\SessionManager($app);
+//		});
+//
+//		$provider = new \Illuminate\View\ViewServiceProvider($app);
+//		$provider->registerEngineResolver();
+//		$provider->registerViewFinder();
+//		$provider->registerEnvironment();
+//
+//		$files = new \Illuminate\Filesystem\FilesystemServiceProvider($app);
+//		$files->register();
+//
+//
+//
+//		View::setFacadeApplication($app);
+//		View::shouldReceive('make')->once()->andReturn('test22');
+//
+//
+////		Event::shouldReceive('fire')->once();
+//
 //
 //		$form = $this->fb->build();
-//
-//		$this->assertInstanceof('Response', $form);
-//	}
+
+	}
 }

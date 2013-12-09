@@ -3,10 +3,11 @@
 namespace Boyhagemann\Form;
 
 use Illuminate\Support\MessageBag;
-use Illuminate\Events\Dispatcher;
-use Illuminate\Session\Store as Session;
 use Boyhagemann\Form\Element;
-use View, Form, StdClass;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Event;
+use StdClass;
 
 /**
  * Class FormBuilder
@@ -45,15 +46,6 @@ class FormBuilder
 	protected $container;
 
 	/**
-	 * @var Dispatcher
-	 */
-	protected $events;
-	/**
-	 * @var Session
-	 */
-	protected $session;
-
-	/**
 	 * @var array
 	 */
 	protected $defaults = array();
@@ -70,13 +62,10 @@ class FormBuilder
 
 	/**
 	 * @param FormElementContainer $container
-	 * @param Dispatcher $events
 	 */
-	public function __construct(FormElementContainer $container, Dispatcher $events, Session $session)
+	public function __construct(FormElementContainer $container)
 	{
-		$this->container 	= $container;
-		$this->events 		= $events;
-		$this->session 		= $session;
+		$this->container = $container;
 	}
 
 	/**
@@ -360,7 +349,7 @@ class FormBuilder
 	 */
 	public function build()
 	{
-		$this->events->fire('form.formBuilder.build.before', array($this));
+		Event::fire('form.formBuilder.build.before', array($this));
 
 		$this->setDefaults();
 		$this->validate();
@@ -371,7 +360,7 @@ class FormBuilder
 
 		$response = View::make($this->view, array('fb' => $this));
 
-		$this->events->fire('form.formBuilder.build.after', array($response, $this));
+		Event::fire('form.formBuilder.build.after', array($response, $this));
 
 		return $response;
 	}
@@ -382,7 +371,7 @@ class FormBuilder
 	 */
 	public function buildElement(Element $element)
 	{
-		$this->events->fire('form.formBuilder.buildElement.before', array($element, $this));
+		Event::fire('form.formBuilder.buildElement.before', array($element, $this));
 
 		$response = $element->getView();
 
@@ -397,7 +386,7 @@ class FormBuilder
 			$response = View::make($response, compact('element', 'state'));
 		}
 
-		$this->events->fire('form.formBuilder.buildElement.after', array($response, $element, $this));
+		Event::fire('form.formBuilder.buildElement.after', array($response, $element, $this));
 
 		return $response;
 	}
@@ -429,8 +418,8 @@ class FormBuilder
 	{
 		// Are there any errors in the session? And are there no errors
 		// set yet? Then use the errors in the session.
-		if(!$this->errors && $this->session->get('errors')) {
-			$this->errors = $this->session->get('errors');
+		if(!$this->errors && Session::get('errors')) {
+			$this->errors = Session::get('errors');
 		}
 
 		// If there are no errors, then we don't have to do
