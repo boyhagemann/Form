@@ -4,11 +4,8 @@ namespace Boyhagemann\Form;
 
 use Illuminate\Support\MessageBag;
 use Boyhagemann\Form\Element;
-use Illuminate\Support\Facades\Session;
 use Illuminate\View\Environment as Renderer;
 use Illuminate\Events\Dispatcher;
-use StdClass;
-
 /**
  * Class FormBuilder
  *
@@ -61,7 +58,7 @@ class FormBuilder
 	protected $defaults = array();
 
 	/**
-	 * @var StdClass
+	 * @var mixed
 	 */
 	protected $model;
 
@@ -284,7 +281,7 @@ class FormBuilder
 	/**
 	 * Get the model object
 	 *
-	 * @return StdClass
+	 * @return mixed
 	 */
 	public function getModel()
 	{
@@ -338,10 +335,10 @@ class FormBuilder
 	 * Attach a model to the form. This will keep the form values and the
 	 * model in sync.
 	 *
-	 * @param StdClass $model
+	 * @param mixed $model
 	 * @return $this
 	 */
-	public function model(StdClass $model)
+	public function model($model)
 	{
 		$this->model = $model;
 		return $this;
@@ -369,7 +366,8 @@ class FormBuilder
 		$this->setDefaults();
 		$this->validate();
 
-		if($this->view instanceof Closure) {
+
+		if(is_callable($this->view)) {
 			return call_user_func_array($this->view, array($this));
 		}
 
@@ -394,7 +392,7 @@ class FormBuilder
 		$state .= $element->getValidationState() ? ' has-' . $element->getValidationState() : '';
 		$state .= $element->isRequired() ? ' is-required' : '';
 
-		if($response instanceof Closure) {
+		if(is_callable($response)) {
 			$response = call_user_func_array($response, array($element));
 		}
 		elseif($this->renderer->exists($response)) {
@@ -457,11 +455,9 @@ class FormBuilder
 	/**
 	 * After all elements are added to the form, we can set the
 	 * default values we collected earlier.
-	 *
 	 */
 	protected function setDefaults()
 	{
-		// Set the default values
 		foreach($this->defaults as $name => $element) {
 			if(isset($this->elements[$name])) {
 				$this->get($name)->value($element);

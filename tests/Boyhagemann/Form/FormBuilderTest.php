@@ -301,6 +301,14 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertSame('error', $this->fb->get('foo')->getValidationState());
 		$this->assertSame('bar', $this->fb->get('foo')->getHelp());
+	}
 
+	public function testViewCanBeClosure()
+	{
+		$this->fb->view(function() {
+			return 'test';
+		});
+
+		$this->assertSame('test', $this->fb->build());
 	}
 }
