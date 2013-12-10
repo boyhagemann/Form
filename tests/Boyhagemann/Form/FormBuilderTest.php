@@ -263,4 +263,44 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertArrayHasKey('fb', $form->getData());
 		$this->assertInstanceof('Boyhagemann\Form\FormBuilder', $form->offsetGet('fb'));
 	}
+
+	public function testBuildElement()
+	{
+		$element = $this->fb->text('test');
+
+		$response = $this->fb->buildElement($element);
+		$this->assertInstanceof('Illuminate\View\View', $response);
+		$this->assertArrayHasKey('element', $response->getData());
+		$this->assertInstanceof('Boyhagemann\Form\Element\Text', $response->offsetGet('element'));
+	}
+
+	public function testSetDefaultsAfterBuildAddsDefaultValueToElement()
+	{
+		$this->fb->text('foo');
+		$this->fb->defaults(array('foo' => 'bar'));
+		$this->fb->build();
+
+		$this->assertSame('bar', $this->fb->get('foo')->getValue());
+	}
+
+	public function testGetRules()
+	{
+		$this->fb->text('foo')->rules('bar');
+		$rules = $this->fb->getRules();
+
+		$this->assertSame(array('foo' => 'bar'), $rules);
+	}
+
+	public function testValidateSetErrorInElementIfThereAreErrorsAfterBuild()
+	{
+		$errors = new \Illuminate\Support\MessageBag(array('foo' => 'bar'));
+
+		$this->fb->text('foo');
+		$this->fb->errors($errors);
+		$this->fb->build();
+
+		$this->assertSame('error', $this->fb->get('foo')->getValidationState());
+		$this->assertSame('bar', $this->fb->get('foo')->getHelp());
+
+	}
 }
