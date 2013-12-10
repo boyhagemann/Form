@@ -16,7 +16,24 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function setUp()
 	{
-		$this->fb = new FormBuilder(new FormElementContainer);
+		$container = new FormElementContainer;
+
+		$events = new \Illuminate\Events\Dispatcher;
+		$filesystem = new \Illuminate\Filesystem\Filesystem;
+		$finder = new \Illuminate\View\FileViewFinder($filesystem, array());
+		$finder->addNamespace('form', array(
+			'form' => getcwd() . '/src/views'
+		));
+
+		$resolver = new \Illuminate\View\Engines\EngineResolver;
+		$resolver->register('blade', function() use($filesystem) {
+			$compiler = new \Illuminate\View\Compilers\BladeCompiler($filesystem, null);
+			return new \Illuminate\View\Engines\CompilerEngine($compiler, $filesystem);
+		});
+
+		$renderer = new \Illuminate\View\Environment($resolver, $finder, $events);
+
+		$this->fb = new FormBuilder($container, $renderer, $events);
 	}
 
 	public function testGetFormElementContainer()
@@ -241,35 +258,9 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testBuild()
 	{
-//		$app = new \Illuminate\Container\Container;
-//		$app->bind('events', 'Illuminate\Events\Dispatcher');
-//		$app['config'] = array(
-//			'session.driver' => 'array',
-//			'view.paths' => array(),
-//		);
-//		$app['session'] = $app->share(function($app)
-//		{
-//			return new \Illuminate\Session\SessionManager($app);
-//		});
-//
-//		$provider = new \Illuminate\View\ViewServiceProvider($app);
-//		$provider->registerEngineResolver();
-//		$provider->registerViewFinder();
-//		$provider->registerEnvironment();
-//
-//		$files = new \Illuminate\Filesystem\FilesystemServiceProvider($app);
-//		$files->register();
-//
-//
-//
-//		View::setFacadeApplication($app);
-//		View::shouldReceive('make')->once()->andReturn('test22');
-//
-//
-////		Event::shouldReceive('fire')->once();
-//
-//
-//		$form = $this->fb->build();
-
+		$form = $this->fb->build();
+		$this->assertInstanceof('Illuminate\View\View', $form);
+		$this->assertArrayHasKey('fb', $form->getData());
+		$this->assertInstanceof('Boyhagemann\Form\FormBuilder', $form->offsetGet('fb'));
 	}
 }

@@ -5,8 +5,8 @@ namespace Boyhagemann\Form;
 use Illuminate\Support\MessageBag;
 use Boyhagemann\Form\Element;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Event;
+use Illuminate\View\Environment as Renderer;
+use Illuminate\Events\Dispatcher;
 use StdClass;
 
 /**
@@ -46,6 +46,16 @@ class FormBuilder
 	protected $container;
 
 	/**
+	 * @var Renderer
+	 */
+	protected $renderer;
+
+	/**
+	 * @var Dispatcher
+	 */
+	protected $events;
+
+	/**
 	 * @var array
 	 */
 	protected $defaults = array();
@@ -62,10 +72,14 @@ class FormBuilder
 
 	/**
 	 * @param FormElementContainer $container
+	 * @param Renderer             $renderer
+	 * @param Dispatcher           $events
 	 */
-	public function __construct(FormElementContainer $container)
+	public function __construct(FormElementContainer $container, Renderer $renderer, Dispatcher $events)
 	{
-		$this->container = $container;
+		$this->container 	= $container;
+		$this->renderer 	= $renderer;
+		$this->events 		= $events;
 	}
 
 	/**
@@ -344,12 +358,13 @@ class FormBuilder
 		$this->attributes['method'] = strtoupper($method);
 		return $this;
 	}
+
 	/**
 	 * @return string
 	 */
 	public function build()
 	{
-		Event::fire('form.formBuilder.build.before', array($this));
+		$this->events->fire('form.formBuilder.build.before', array($this));
 
 		$this->setDefaults();
 		$this->validate();
@@ -358,9 +373,9 @@ class FormBuilder
 			return call_user_func_array($this->view, array($this));
 		}
 
-		$response = View::make($this->view, array('fb' => $this));
+		$response = $this->renderer->make($this->view, array('fb' => $this));
 
-		Event::fire('form.formBuilder.build.after', array($response, $this));
+		$this->events->fire('form.formBuilder.build.after', array($response, $this));
 
 		return $response;
 	}
@@ -371,7 +386,7 @@ class FormBuilder
 	 */
 	public function buildElement(Element $element)
 	{
-		Event::fire('form.formBuilder.buildElement.before', array($element, $this));
+		$this->events->fire('form.formBuilder.buildElement.before', array($element, $this));
 
 		$response = $element->getView();
 
@@ -382,11 +397,11 @@ class FormBuilder
 		if($response instanceof Closure) {
 			$response = call_user_func_array($response, array($element));
 		}
-		elseif(View::exists($response)) {
-			$response = View::make($response, compact('element', 'state'));
+		elseif($this->renderer->exists($response)) {
+			$response = $this->renderer->make($response, compact('element', 'state'));
 		}
 
-		Event::fire('form.formBuilder.buildElement.after', array($response, $element, $this));
+		$this->events->fire('form.formBuilder.buildElement.after', array($response, $element, $this));
 
 		return $response;
 	}
@@ -418,9 +433,9 @@ class FormBuilder
 	{
 		// Are there any errors in the session? And are there no errors
 		// set yet? Then use the errors in the session.
-		if(!$this->errors && Session::get('errors')) {
-			$this->errors = Session::get('errors');
-		}
+//		if(!$this->errors && Session::get('errors')) {
+//			$this->errors = Session::get('errors');
+//		}
 
 		// If there are no errors, then we don't have to do
 		// anything more.
