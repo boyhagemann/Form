@@ -52,6 +52,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$this->fb->text('test');
 		$this->assertInstanceOf('Boyhagemann\Form\Element\Text', $this->fb->get('test'));
+		$this->assertNull($this->fb->get('non-existing'));
 	}
 
 	public function testAddingNonExistingElements()
@@ -109,6 +110,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->fb->option('foo', 'bar');
 		$this->assertSame('bar', $this->fb->getOption('foo'));
+		$this->assertNull($this->fb->getOption('non-existing'));
 	}
 
 	public function testSetName()
@@ -130,6 +132,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	public function testSetRoute()
 	{
 		$this->assertSame($this->fb, $this->fb->route('test'));
+		$this->assertSame($this->fb, $this->fb->route('test', array('foo' => 'bar')));
 	}
 
 	/**
@@ -207,6 +210,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	public function testGetAttribute()
 	{
 		$this->assertSame('POST', $this->fb->getAttribute('method'));
+		$this->assertNull($this->fb->getAttribute('non-existing'));
 	}
 
 	public function testSetModel()
@@ -225,6 +229,14 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	public function testSetDefaults()
 	{
 		$this->assertSame($this->fb, $this->fb->defaults(array('foo', 'bar')));
+	}
+
+	/**
+	 * @expectedException ReflectionException
+	 */
+	public function testCallingNonExistingElementThrowsException()
+	{
+		$this->fb->nonExistingElement('test');
 	}
 
 	public function testBuild()

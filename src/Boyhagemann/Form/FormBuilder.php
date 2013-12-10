@@ -525,13 +525,15 @@ class FormBuilder
 	 *
 	 * @param $alias
 	 * @param $arguments
+	 * @throws \ReflectionException
 	 * @return mixed
 	 */
 	public function __call($alias, $arguments)
 	{
-		$element = $this->container->make($alias);
-		$name = current($arguments);
+		// Check if the element is registered to the container
+		$this->container->make($alias);
 
+		$name = current($arguments);
 		return $this->element($alias, $name);
 	}
 }
