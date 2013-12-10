@@ -5,7 +5,7 @@ namespace Boyhagemann\Form;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
-use Mockery;
+use Mockery as m;
 
 class FormBuilderTest extends \PHPUnit_Framework_TestCase
 {
