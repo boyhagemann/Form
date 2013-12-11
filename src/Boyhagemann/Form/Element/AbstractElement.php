@@ -2,17 +2,22 @@
 
 namespace Boyhagemann\Form\Element;
 
-use Boyhagemann\Form\Element;
+use Boyhagemann\Form\Contract\HtmlElement;
+use Boyhagemann\Form\Contract\PresentableElement;
 use Boyhagemann\Form\View;
 
-abstract class AbstractElement implements Element
+abstract class AbstractElement implements HtmlElement, PresentableElement
 {
+	const STATE_SUCCESS = 'success';
+	const STATE_WARNING = 'warning';
+	const STATE_ERROR 	= 'error';
+
 	protected $name;
 	protected $label;
 	protected $value;
 	protected $disabled = false;
 	protected $help;
-	protected $rules;
+	protected $rules = '';
 	protected $view;
 	protected $map = true;
 	protected $validationState;
@@ -70,6 +75,10 @@ abstract class AbstractElement implements Element
 		if($required) {
 			$this->rule('required');
 		}
+		else {
+			$this->removeRule('required');
+		}
+
 		return $this;
 	}
 	/**
@@ -130,6 +139,8 @@ abstract class AbstractElement implements Element
 	 */
 	public function rules($rules)
 	{
+		$this->rules = '';
+
 		if(is_array($rules)) {
 			foreach($rules as $rule) {
 				$this->rule($rule);
@@ -149,7 +160,11 @@ abstract class AbstractElement implements Element
 	public function rule($rule)
 	{
 		if($this->rules) {
-			$this->rules = $rule . '|' . $this->rules;
+
+			if(!$this->hasRule($rule)) {
+				$this->rules = $rule . '|' . $this->rules;
+			}
+
 		}
 		else {
 			$this->rules = $rule;
@@ -165,6 +180,21 @@ abstract class AbstractElement implements Element
 	public function hasRule($rule)
 	{
 		return in_array($rule, $this->getRulesAsArray());
+	}
+
+	/**
+	 * @param $rule
+	 * @return $this
+	 */
+	public function removeRule($rule)
+	{
+		if($this->hasRule($rule)) {
+			$rules = array_flip($this->getRulesAsArray());
+			unset($rules[$rule]);
+			$this->rules(array_flip($rules));
+		}
+
+		return $this;
 	}
 
 	/**
@@ -212,6 +242,10 @@ abstract class AbstractElement implements Element
 	 */
 	public function getRulesAsArray()
 	{
+		if(!$this->rules) {
+			return array();
+		}
+
 		return explode('|', $this->getRules());
 	}
 
@@ -249,11 +283,37 @@ abstract class AbstractElement implements Element
 	}
 
 	/**
+	 * @param string $attribute
+	 * @return mixed
+	 */
+	public function getAttribute($attribute)
+	{
+		if(!isset($this->attributes[$attribute])) {
+			return;
+		}
+
+		return $this->attributes[$attribute];
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getOptions()
 	{
 		return $this->options;
+	}
+
+	/**
+	 * @param string $option
+	 * @return mixed
+	 */
+	public function getOption($option)
+	{
+		if(!isset($this->options[$option])) {
+			return;
+		}
+
+		return $this->options[$option];
 	}
 
 	/**
@@ -267,27 +327,27 @@ abstract class AbstractElement implements Element
 	/**
 	 * @return $this
 	 */
-	public function hasSuccess()
+	public function withSuccess()
 	{
-		$this->validationState = 'success';
+		$this->validationState = self::STATE_SUCCESS;
 		return $this;
 	}
 
 	/**
 	 * @return $this
 	 */
-	public function hasError()
+	public function withError()
 	{
-		$this->validationState = 'error';
+		$this->validationState = self::STATE_ERROR;
 		return $this;
 	}
 
 	/**
 	 * @return $this
 	 */
-	public function hasWarning()
+	public function withWarning()
 	{
-		$this->validationState = 'warning';
+		$this->validationState = self::STATE_WARNING;
 		return $this;
 	}
 

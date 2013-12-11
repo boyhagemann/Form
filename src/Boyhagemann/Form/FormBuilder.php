@@ -3,9 +3,12 @@
 namespace Boyhagemann\Form;
 
 use Illuminate\Support\MessageBag;
-use Boyhagemann\Form\Element;
+use Boyhagemann\Form\Contract\HtmlElement;
+use Boyhagemann\Form\Contract\PresentableElement;
 use Illuminate\View\Environment as Renderer;
 use Illuminate\Events\Dispatcher;
+use Closure;
+
 /**
  * Class FormBuilder
  *
@@ -132,12 +135,12 @@ class FormBuilder
 	/**
 	 * Remove an element from the form
 	 *
-	 * @param string|Element $element
+	 * @param string|HtmlElement $element
 	 * @return $this
 	 */
 	public function remove($element)
 	{
-		if($element instanceof Element) {
+		if($element instanceof HtmlElement) {
 			$element = $element->getName();
 		}
 
@@ -367,7 +370,7 @@ class FormBuilder
 		$this->validate();
 
 
-		if(is_callable($this->view)) {
+		if($this->view instanceof Closure) {
 			return call_user_func_array($this->view, array($this));
 		}
 
@@ -379,24 +382,31 @@ class FormBuilder
 	}
 
 	/**
-	 * @param Element $element
+	 * @param $element
 	 * @return string|View
 	 */
-	public function buildElement(Element $element)
+	public function buildElement($element)
 	{
+		if(!$element instanceof PresentableElement) {
+			return;
+		}
+
 		$this->events->fire('form.formBuilder.buildElement.before', array($element, $this));
 
-		$response = $element->getView();
+		$view = $element->getView();
 
 		$state = '';
 		$state .= $element->getValidationState() ? ' has-' . $element->getValidationState() : '';
 		$state .= $element->isRequired() ? ' is-required' : '';
 
-		if(is_callable($response)) {
-			$response = call_user_func_array($response, array($element));
+		if($view instanceof Closure) {
+			$response = call_user_func_array($view, array($element));
 		}
-		elseif($this->renderer->exists($response)) {
-			$response = $this->renderer->make($response, compact('element', 'state'));
+		elseif($this->renderer->exists($view)) {
+			$response = $this->renderer->make($view, compact('element', 'state'));
+		}
+		else {
+			$response = '';
 		}
 
 		$this->events->fire('form.formBuilder.buildElement.after', array($response, $element, $this));
@@ -447,7 +457,7 @@ class FormBuilder
 			// For now, we only use the first error
 			$error = $this->errors->first($name);
 			if($error) {
-				$element->hasError()->help($error);
+				$element->withError()->help($error);
 			}
 		}
 	}
