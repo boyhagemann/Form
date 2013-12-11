@@ -13,7 +13,7 @@ class Checkbox extends AbstractElement implements Type\MultipleChoice
 	 * @param $choices
 	 * @return $this
 	 */
-	public function choices($choices)
+	public function choices(Array $choices)
 	{
 		$this->choices = $choices;
 		return $this;

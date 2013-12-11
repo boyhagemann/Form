@@ -3,19 +3,23 @@
 namespace Boyhagemann\Form\Element;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use App, Closure;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Container\Container;
+use Closure;
 
 abstract class ModelElement extends AbstractElement implements Type\Choice
 {
-	protected $model;
+    protected $qb;
+    protected $container;
+    protected $model;
 	protected $key = 'id';
 	protected $field = 'title';
 	protected $before;
 	protected $after;
 	protected $choices = array();
 	protected $alias;
-
-        /**
+    
+    /**
 	 * @param string $field
 	 * @return $this
 	 */
@@ -46,6 +50,16 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 	}
 
 	/**
+	 * @param Builder $model
+	 * @return $this
+	 */
+	public function query(Builder $qb)
+	{
+		$this->qb = $qb;
+		return $this;
+	}
+
+	/**
 	 * @param string $alias
 	 * @return $this
 	 */
@@ -59,7 +73,7 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 	 * @param array $choices
 	 * @return $this
 	 */
-	public function choices($choices)
+	public function choices(Array $choices)
 	{
 		$this->choices = $choices;
 		return $this;
@@ -85,8 +99,19 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 		$this->after = $after;
 		return $this;
 	}
+    
+    /**
+     * 
+     * @param Container $container
+     * @return $this
+     */
+    public function container(Container $container)
+    {
+        $this->container = $container;
+        return $this;
+    }
 
-	/**
+    /**
 	 * @return array
 	 */
 	public function getChoices()
@@ -96,12 +121,18 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 		}
 
 		if($this->model instanceof Eloquent) {
-			$qb = $this->model->query();
+			$qb = $this->model;
 		}
-		else {
-			$qb = App::make($this->model)->query();
+		elseif($this->qb) {
+			$qb = $this->qb;
 		}
-
+        elseif($this->container && $this->model) {
+            $qb = $this->container->make($this->model);
+        }
+        else {
+            return array();
+        }
+        
 		if($this->before) {
 			call_user_func_array($this->before, array($qb, $this));
 		}

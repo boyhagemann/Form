@@ -4,6 +4,6 @@ namespace Boyhagemann\Form\Element\Type;
 
 interface Choice
 {
-	public function choices($choices);
+	public function choices(Array $choices);
 	public function getChoices();
 }

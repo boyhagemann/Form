@@ -12,7 +12,7 @@ class Radio extends AbstractElement implements Type\Choice
 	 * @param $choices
 	 * @return $this
 	 */
-	public function choices($choices)
+	public function choices(Array $choices)
 	{
 		$this->choices = $choices;
 		return $this;

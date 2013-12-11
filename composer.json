@@ -13,10 +13,11 @@
 		"illuminate/container": "4.0.x",
 		"illuminate/events": "4.0.x",
 		"illuminate/session": "4.0.x",
-		"illuminate/view": "4.0.x"
+		"illuminate/view": "4.0.x",
+		"illuminate/database": "4.0.x"
     },
 	"require-dev": {
-		"mockery/mockery": "0.7.2",
+		"mockery/mockery": "0.8.0",
 		"phpunit/phpunit": "3.7.*"
 	},
     "autoload": {

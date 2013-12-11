@@ -2,10 +2,7 @@
 
 namespace Boyhagemann\Form;
 
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\View;
-use Mockery;
+use Mockery as m;
 
 class FormElementContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,6 +15,12 @@ class FormElementContainerTest extends \PHPUnit_Framework_TestCase
 	{
 		$this->container = new FormElementContainer;
 	}
+    
+    public function testContainerExtendsContainer()
+    {
+        $this->mockConnection();
+        $this->assertInstanceOf('Illuminate\Container\Container', $this->container);
+    }
 
 	/**
 	 * @param $name
@@ -54,4 +57,23 @@ class FormElementContainerTest extends \PHPUnit_Framework_TestCase
 			'modelRadio' 	=> 	'Boyhagemann\Form\Element\ModelRadio',
 		);
 	}
+    
+    
+    /**
+    * Mock some of the internals of DB connection
+    * used for proper DateTime format. Assuming MySQL, but
+    * any can be used, as long as its DateTIme format is consistent
+    */
+    protected function mockConnection()
+    {        
+        $model = m::mock('Illuminate\Database\Eloquent\Model');
+        
+        $model->shouldReceive('setConnectionResolver')->with($resolver = m::mock('Illuminate\Database\ConnectionResolverInterface'));
+        $resolver->shouldReceive('connection')->andReturn($mockConnection = m::mock('Illuminate\Database\ConnectionInterface'));
+        $mockConnection->shouldreceive('getPostProcessor')->andReturn(m::mock('Illuminate\Database\Query\Processors\Processor'));
+        $mockConnection->shouldReceive('getQueryGrammar')->andReturn($queryGrammar = m::mock('Illuminate\Database\Query\Grammars\Grammar'));
+        $queryGrammar->shouldReceive('getDateFormat')->andReturn('Y-m-d H:i:s');
+        
+        return $model;
+    }
 }
