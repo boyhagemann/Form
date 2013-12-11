@@ -371,10 +371,11 @@ class FormBuilder
 
 
 		if($this->view instanceof Closure) {
-			return call_user_func_array($this->view, array($this));
+			$response = call_user_func_array($this->view, array($this));
 		}
-
-		$response = $this->renderer->make($this->view, array('fb' => $this));
+		else {
+			$response = $this->renderer->make($this->view, array('fb' => $this));
+		}
 
 		$this->events->fire('form.formBuilder.build.after', array($response, $this));
 

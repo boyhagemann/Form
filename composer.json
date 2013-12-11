@@ -13,9 +13,12 @@
 		"illuminate/container": "4.0.x",
 		"illuminate/events": "4.0.x",
 		"illuminate/session": "4.0.x",
-		"illuminate/view": "4.0.x",
-		"mockery/mockery": "0.7.2"
+		"illuminate/view": "4.0.x"
     },
+	"require-dev": {
+		"mockery/mockery": "0.7.2",
+		"phpunit/phpunit": "3.7.*"
+	},
     "autoload": {
         "psr-0": {
             "Boyhagemann\\Form": "src/"

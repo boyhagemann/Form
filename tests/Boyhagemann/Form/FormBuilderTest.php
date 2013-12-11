@@ -2,9 +2,6 @@
 
 namespace Boyhagemann\Form;
 
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\View;
 use Mockery as m;
 
 class FormBuilderTest extends \PHPUnit_Framework_TestCase
@@ -14,26 +11,17 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	 */
 	protected $fb;
 
+	protected $container;
+	protected $view;
+	protected $events;
+
 	public function setUp()
 	{
-		$container = new FormElementContainer;
+		$this->container = m::mock('Boyhagemann\Form\FormElementContainer');
+		$this->view = m::mock('Illuminate\View\Environment');
+		$this->events = m::mock('Illuminate\Events\Dispatcher');
 
-		$events = new \Illuminate\Events\Dispatcher;
-		$filesystem = new \Illuminate\Filesystem\Filesystem;
-		$finder = new \Illuminate\View\FileViewFinder($filesystem, array());
-		$finder->addNamespace('form', array(
-			'form' => getcwd() . '/src/views'
-		));
-
-		$resolver = new \Illuminate\View\Engines\EngineResolver;
-		$resolver->register('blade', function() use($filesystem) {
-			$compiler = new \Illuminate\View\Compilers\BladeCompiler($filesystem, null);
-			return new \Illuminate\View\Engines\CompilerEngine($compiler, $filesystem);
-		});
-
-		$renderer = new \Illuminate\View\Environment($resolver, $finder, $events);
-
-		$this->fb = new FormBuilder($container, $renderer, $events);
+		$this->fb = new FormBuilder($this->container, $this->view , $this->events);
 	}
 
 	public function testGetFormElementContainer()
@@ -59,6 +47,8 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testHasFormElementReturnsTrueIfElementExists()
 	{
+		$this->mockTextElement();
+
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$this->fb->text('test');
 		$this->assertTrue($this->fb->has('test'));
@@ -66,6 +56,8 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testGetFormElementReturnsElement()
 	{
+		$this->mockTextElement();
+
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$this->fb->text('test');
 		$this->assertInstanceOf('Boyhagemann\Form\Element\Text', $this->fb->get('test'));
@@ -74,17 +66,16 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testAddingNonExistingElements()
 	{
+		$this->mockTextElement();
+
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$this->assertInstanceOf('Boyhagemann\Form\Element\Text', $this->fb->text('test'));
 	}
 
-	public function testRegisterElements()
-	{
-		$this->assertSame($this->fb, $this->fb->register('text', 'Boyhagemann\Form\Element\Text'));
-	}
-
 	public function testRemoveElementByName()
 	{
+		$this->mockTextElement();
+
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$this->fb->text('test');
 		$return = $this->fb->remove('test');
@@ -95,6 +86,9 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testRemoveElementByElement()
 	{
+		$element = $this->mockTextElement();
+		$element->shouldReceive('getName')->andReturn('test');
+
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$text = $this->fb->text('test');
 		$return = $this->fb->remove($text);
@@ -105,6 +99,8 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testGetElements()
 	{
+		$this->mockTextElement();
+
 		$this->fb->register('text', 'Boyhagemann\Form\Element\Text');
 		$this->fb->text('test');
 		$elements = $this->fb->getElements();
@@ -253,11 +249,20 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCallingNonExistingElementThrowsException()
 	{
+		$this->container->shouldReceive('make')->andThrow('ReflectionException');
+
 		$this->fb->nonExistingElement('test');
 	}
 
 	public function testBuild()
 	{
+		$view = m::mock('Illuminate\View\View');
+		$view->shouldReceive('getData')->once()->andReturn(array('fb' => $this->fb));
+		$view->shouldReceive('offsetGet')->with('fb')->once()->andReturn($this->fb);
+
+		$this->events->shouldReceive('fire')->twice();
+		$this->view->shouldReceive('make')->once()->andReturn($view);
+
 		$form = $this->fb->build();
 		$this->assertInstanceof('Illuminate\View\View', $form);
 		$this->assertArrayHasKey('fb', $form->getData());
@@ -266,6 +271,19 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testBuildElement()
 	{
+		$element = $this->mockTextElement();
+		$element->shouldReceive('getView')->andReturn('test');
+		$element->shouldReceive('getView')->andReturn('test');
+		$element->shouldReceive('getValidationState')->andReturn('');
+
+		$response = m::mock('Illuminate\View\View');
+		$response->shouldReceive('getData')->andReturn(array('element' => $element));
+		$response->shouldReceive('offsetGet')->with('element')->once()->andReturn($element);
+
+		$this->events->shouldReceive('fire')->twice();
+		$this->view->shouldReceive('exists')->once()->andReturn(true);
+		$this->view->shouldReceive('make')->once()->andReturn($response);
+
 		$element = $this->fb->text('test');
 
 		$response = $this->fb->buildElement($element);
@@ -283,53 +301,83 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 
 	public function testBuildElementCanRenderClosure()
 	{
-		$element = $this->getMockElement();
+		$element = $this->mockTextElement();
+		$element->shouldReceive('getValidationState')->andReturn('');
 		$element->shouldReceive('getView')->once()->andReturn(function() {
 			return 'test';
 		});
+
+		$this->events->shouldReceive('fire')->twice();
 
 		$this->assertSame('test', $this->fb->buildElement($element));
 	}
 
 	public function testBuildElementRendersNothingIfViewDoesNotExist()
 	{
-		$element = $this->getMockElement();
+		$element = $this->mockTextElement();
+		$element->shouldReceive('getValidationState')->andReturn('');
 		$element->shouldReceive('getView')->andReturn('non-existing');
+
+		$this->events->shouldReceive('fire')->twice();
+		$this->view->shouldReceive('exists')->once()->andReturn(true);
+		$this->view->shouldReceive('make')->once()->andReturn('');
 
 		$this->assertSame('', $this->fb->buildElement($element));
 	}
 
 	public function testSetDefaultsAfterBuildAddsDefaultValueToElement()
 	{
-		$this->fb->text('foo');
+		$element = $this->mockTextElement();
+		$element->shouldReceive('getValue')->once()->andReturn('bar');
+
+		$this->events->shouldReceive('fire')->twice();
+		$this->view->shouldReceive('make')->once();
+
+		$this->fb->text('test');
 		$this->fb->defaults(array('foo' => 'bar'));
 		$this->fb->build();
 
-		$this->assertSame('bar', $this->fb->get('foo')->getValue());
+		$this->assertSame('bar', $this->fb->get('test')->getValue());
 	}
 
 	public function testGetRules()
 	{
-		$this->fb->text('foo')->rules('bar');
+		$element = $this->mockTextElement();
+		$element->shouldReceive('rules')->once()->with('bar')->andReturn($element);
+		$element->shouldReceive('getRules')->twice()->andReturn('bar');
+
+		$this->fb->text('test')->rules('bar');
 		$rules = $this->fb->getRules();
 
-		$this->assertSame(array('foo' => 'bar'), $rules);
+		$this->assertSame(array('test' => 'bar'), $rules);
 	}
 
 	public function testValidateSetErrorInElementIfThereAreErrorsAfterBuild()
 	{
-		$errors = new \Illuminate\Support\MessageBag(array('foo' => 'bar'));
+		$element = $this->mockTextElement();
+		$element->shouldReceive('withError')->once()->andReturn($element);
+		$element->shouldReceive('getValidationState')->andReturn('error');
+		$element->shouldReceive('help')->once()->andReturn($element);
+		$element->shouldReceive('getHelp')->once()->andReturn('bar');
 
-		$this->fb->text('foo');
+		$errors = m::mock('Illuminate\Support\MessageBag');
+		$errors->shouldReceive('first')->once()->andReturn(array('test' => 'bar2'));
+
+		$this->events->shouldReceive('fire')->twice();
+		$this->view->shouldReceive('make')->once();
+
+		$this->fb->text('test');
 		$this->fb->errors($errors);
 		$this->fb->build();
 
-		$this->assertSame('error', $this->fb->get('foo')->getValidationState());
-		$this->assertSame('bar', $this->fb->get('foo')->getHelp());
+		$this->assertSame('error', $this->fb->get('test')->getValidationState());
+		$this->assertSame('bar', $this->fb->get('test')->getHelp());
 	}
 
 	public function testViewCanBeClosure()
 	{
+		$this->events->shouldReceive('fire')->twice();
+
 		$this->fb->view(function() {
 			return 'test';
 		});
@@ -337,10 +385,12 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertSame('test', $this->fb->build());
 	}
 
-	protected function getMockElement()
+	public function mockTextElement()
 	{
 		$element = m::mock('Boyhagemann\Form\Element\Text');
-		$element->shouldReceive('getValidationState')->andReturn('');
+		$element->shouldReceive('name')->with('test')->andReturn($element);
+		$this->container->shouldReceive('bindIf');
+		$this->container->shouldReceive('make')->andReturn($element);
 		$element->shouldReceive('isRequired')->andReturn(false);
 
 		return $element;
