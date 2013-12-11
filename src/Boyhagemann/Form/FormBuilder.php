@@ -400,14 +400,13 @@ class FormBuilder
 		$state .= $element->getValidationState() ? ' has-' . $element->getValidationState() : '';
 		$state .= $element->isRequired() ? ' is-required' : '';
 
+        $response = '';
+        
 		if($view instanceof Closure) {
 			$response = call_user_func_array($view, array($element));
 		}
 		elseif($this->renderer->exists($view)) {
 			$response = $this->renderer->make($view, compact('element', 'state'));
-		}
-		else {
-			$response = '';
 		}
 
 		$this->events->fire('form.formBuilder.buildElement.after', array($response, $element, $this));
@@ -440,12 +439,6 @@ class FormBuilder
 	 */
 	protected function validate()
 	{
-		// Are there any errors in the session? And are there no errors
-		// set yet? Then use the errors in the session.
-//		if(!$this->errors && Session::get('errors')) {
-//			$this->errors = Session::get('errors');
-//		}
-
 		// If there are no errors, then we don't have to do
 		// anything more.
 		if(!$this->errors) {

@@ -120,6 +120,27 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 			return $this->choices;
 		}
 
+        $qb = $this->getQuery();
+        
+        if(!$qb) {
+            return array();
+        }
+        
+        $this->handleBefore($qb);
+
+		$this->choices = $qb->lists($this->field, $this->key);
+
+        $this->handleAfter($qb);
+
+		return $this->choices;
+	}
+    
+    /**
+     * 
+     * @return Builder|null
+     */
+    protected function getQuery()
+    {
 		if($this->model instanceof Eloquent) {
 			$qb = $this->model;
 		}
@@ -130,19 +151,25 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
             $qb = $this->container->make($this->model);
         }
         else {
-            return array();
+            return;
         }
         
+        return $qb;
+    }
+
+
+    protected function handleBefore($qb)
+    {        
 		if($this->before) {
 			call_user_func_array($this->before, array($qb, $this));
-		}
-
-		$this->choices = $qb->lists($this->field, $this->key);
-
+		}        
+    }
+    
+    protected function handleAfter($qb)
+    {        
 		if($this->after) {
 			call_user_func_array($this->after, array($qb, $this));
 		}
+    }
 
-		return $this->choices;
-	}
 }
