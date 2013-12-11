@@ -274,6 +274,31 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceof('Boyhagemann\Form\Element\Text', $response->offsetGet('element'));
 	}
 
+	public function testBuildElementDoesReturnsIfElementIsNotOfPresentableInterface()
+	{
+		$element = new \StdClass();
+
+		$this->assertNull($this->fb->buildElement($element));
+	}
+
+	public function testBuildElementCanRenderClosure()
+	{
+		$element = $this->getMockElement();
+		$element->shouldReceive('getView')->once()->andReturn(function() {
+			return 'test';
+		});
+
+		$this->assertSame('test', $this->fb->buildElement($element));
+	}
+
+	public function testBuildElementRendersNothingIfViewDoesNotExist()
+	{
+		$element = $this->getMockElement();
+		$element->shouldReceive('getView')->andReturn('non-existing');
+
+		$this->assertSame('', $this->fb->buildElement($element));
+	}
+
 	public function testSetDefaultsAfterBuildAddsDefaultValueToElement()
 	{
 		$this->fb->text('foo');
@@ -310,5 +335,19 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 		});
 
 		$this->assertSame('test', $this->fb->build());
+	}
+
+	protected function getMockElement()
+	{
+		$element = m::mock('Boyhagemann\Form\Element\Text');
+		$element->shouldReceive('getValidationState')->andReturn('');
+		$element->shouldReceive('isRequired')->andReturn(false);
+
+		return $element;
+	}
+
+	public function tearDown()
+	{
+		m::close();
 	}
 }
