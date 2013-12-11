@@ -273,8 +273,6 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	{
 		$element = $this->mockTextElement();
 		$element->shouldReceive('getView')->andReturn('test');
-		$element->shouldReceive('getView')->andReturn('test');
-		$element->shouldReceive('getValidationState')->andReturn('');
 
 		$response = m::mock('Illuminate\View\View');
 		$response->shouldReceive('getData')->andReturn(array('element' => $element));
@@ -302,7 +300,6 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	public function testBuildElementCanRenderClosure()
 	{
 		$element = $this->mockTextElement();
-		$element->shouldReceive('getValidationState')->andReturn('');
 		$element->shouldReceive('getView')->once()->andReturn(function() {
 			return 'test';
 		});
@@ -315,7 +312,6 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	public function testBuildElementRendersNothingIfViewDoesNotExist()
 	{
 		$element = $this->mockTextElement();
-		$element->shouldReceive('getValidationState')->andReturn('');
 		$element->shouldReceive('getView')->andReturn('non-existing');
 
 		$this->events->shouldReceive('fire')->twice();
@@ -388,10 +384,12 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
 	public function mockTextElement()
 	{
 		$element = m::mock('Boyhagemann\Form\Element\Text');
-		$element->shouldReceive('name')->with('test')->andReturn($element);
-		$this->container->shouldReceive('bindIf');
+		$element->shouldReceive('name')->with('test')->andReturn($element)->byDefault();
+		$element->shouldReceive('getValidationState')->andReturn('')->byDefault();
+		$element->shouldReceive('isRequired')->andReturn(false)->byDefault();
+
+		$this->container->shouldReceive('bindIf')->byDefault();
 		$this->container->shouldReceive('make')->andReturn($element);
-		$element->shouldReceive('isRequired')->andReturn(false);
 
 		return $element;
 	}
