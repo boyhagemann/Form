@@ -69,17 +69,6 @@ $fb->register('myElement', 'The\Custom\Element\Class');
 $fb->myElement('name');
 ```
 
-## Export and import
-The FormBuilder can be exported as an array with the toArray method. 
-This array can be stored as a config file.
-```php
-// Get the form as a config and store it in a file or session
-$config = $fb->toArray();
-
-// Then import it back again later to get the exact form
-$fb->fromArray($config);
-```
-
 To make good use of autocompletion in your IDE, do the following. 
 You can extend the formbuilder class and make a base form for your application.
 Then add methods for your custom elements like this:
@@ -101,6 +90,16 @@ class MyBaseForm extends FormBuilder
 }
 ```
 
+## Export and import
+The FormBuilder can be exported as an array with the toArray method. 
+This array can be stored as a config file.
+```php
+// Get the form as a config and store it in a file or session
+$config = $fb->toArray();
+
+// Then import it back again later to get the exact form
+$fb->fromArray($config);
+```
 
 ## Events
 There are several events triggered while building the form:
