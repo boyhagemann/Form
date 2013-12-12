@@ -69,14 +69,12 @@ $fb->fromArray($config);
 ## Events
 There are several events triggered while building the form:
 
-- formBuilder.build.pre
-- formBuilder.build.post
-- formBuilder.buildElement.pre
-- formBuilder.buildElement.post
 
-All the events have the following objects attached:
-- a Symfony\Component\Form\FormBuilder instance to build the form
-- the FormBuilder instance used
-- Only for the buildElement events: an instance of the actual element
+# Subscribers
+Subscribers are a combination of events and solve common problems or help with user scenarios.
+They are added to your application with a single line of code.
+Here are the included subscribers:
 
+### FillFormWithErrorsFromSession
+### SaveFormStateInSession
 
