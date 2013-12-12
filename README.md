@@ -55,6 +55,20 @@ $fb->get('title')->label('What is the title?');
    
 ```
 
+## Add custom elements
+The formbuilder is set up to be a flexible system that can hold many custom elements.
+The only condition for an element is to follow the `Boyhagemann\Form\Contract\HtmlElement` interface.
+To register a new element to the formbuilder, do the following:
+```php
+
+// Register the custom element to the FormBuilder instance.
+// Please add elements in your service provider or in the application bootstrap.
+$fb->register('myElement', 'The\Custom\Element\Class'); 
+
+// We can now call the element and use it throughout your application
+$fb->myElement('name');
+```
+
 ## Export and import
 The FormBuilder can be exported as an array with the toArray method. 
 This array can be stored as a config file.
@@ -65,6 +79,28 @@ $config = $fb->toArray();
 // Then import it back again later to get the exact form
 $fb->fromArray($config);
 ```
+
+To make good use of autocompletion in your IDE, do the following. 
+You can extend the formbuilder class and make a base form for your application.
+Then add methods for your custom elements like this:
+```php
+
+use Boyhagemann\Form\Formbuilder;
+
+class MyBaseForm extends FormBuilder
+{
+    /**
+     *
+     * @param string $name
+     * @return The\Custom\Element\Class
+     */
+    public function myElement($name)
+    {
+        return $this->element('myElement', $name, 'The\Custom\Element\Class');
+    }
+}
+```
+
 
 ## Events
 There are several events triggered while building the form:
