@@ -69,12 +69,38 @@ $fb->fromArray($config);
 ## Events
 There are several events triggered while building the form:
 
+`formbuilder.build.form.pre`
+Allows you to alter anything on the formbuilder just before the build process is starting.
+
+`formbuilder.build.form.post`
+After building the form you can hook into the formbuilder to perform other things. 
+Or you can interact with the generated form html.
+
+`formbuilder.build.element.pre`
+Just before an element is build, you can alter the formbuilder instance or the element object itself.
+
+`formbuilder.build.element.post`
+After the element is build you can do things with the formbuilder instance or with the created element html.
 
 # Subscribers
 Subscribers are a combination of events and solve common problems or help with user scenarios.
 They are added to your application with a single line of code.
+Preferably, you should have a `events.php` file next to your `filters.php` and `routes.php` files. 
 Here are the included subscribers:
 
 ### FillFormWithErrorsFromSession
+When this subscribers is registered, you can read the possible errors from the session. 
+To use it, simply add the following line to your application.
+```php
+Event::register('Boyhagemann\Form\Subscriber\FillFormWithErrorsFromSession');
+```
+
 ### SaveFormStateInSession
+When you make multipage forms, or you want to go a different page and then back to your form, you should probably
+store the form values in a session. 
+This subscriber does it for you. 
+Add this line to your application:
+```php
+Event::register('Boyhagemann\Form\Subscriber\SaveFormStateInSession');
+```
 
