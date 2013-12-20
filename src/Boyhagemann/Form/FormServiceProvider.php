@@ -30,11 +30,13 @@ class FormServiceProvider extends ServiceProvider
 			return new FormElementContainer;
 		});
 
-		// Create an alias for the formbuilder class
-		$this->app->bind('formbuilder', function($app) {
+		// Create the formbuilder class
+		$this->app->bind('Boyhagemann\Form\FormBuilder', function($app) {
 			return new FormBuilder($app['Boyhagemann\Form\FormElementContainer'], $app['view'], $app['events']);
 		});
-                
+
+		// Create an alias for the formbuilder class
+		$this->app->alias('Boyhagemann\Form\FormBuilder', 'formbuilder');
     }
 
     /**
