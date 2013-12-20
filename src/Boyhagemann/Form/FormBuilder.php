@@ -84,7 +84,7 @@ class FormBuilder
 
 	/**
 	 * Set the name for the form
-	 *
+	 *swi
 	 * @param string $name
 	 * @return $this
 	 */
