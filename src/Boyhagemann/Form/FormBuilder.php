@@ -3,8 +3,7 @@
 namespace Boyhagemann\Form;
 
 use Illuminate\Support\MessageBag;
-use Boyhagemann\Form\Contract\HtmlElement;
-use Boyhagemann\Form\Contract\PresentableElement;
+use Boyhagemann\Form\Element\ElementInterface;
 use Illuminate\View\Environment as Renderer;
 use Illuminate\Events\Dispatcher;
 use Closure;
@@ -135,12 +134,12 @@ class FormBuilder
 	/**
 	 * Remove an element from the form
 	 *
-	 * @param string|HtmlElement $element
+	 * @param string|ElementInterface $element
 	 * @return $this
 	 */
 	public function remove($element)
 	{
-		if($element instanceof HtmlElement) {
+		if($element instanceof ElementInterface) {
 			$element = $element->getName();
 		}
 
@@ -388,7 +387,7 @@ class FormBuilder
 	 */
 	public function buildElement($element)
 	{
-		if(!$element instanceof PresentableElement) {
+		if(!$element instanceof ElementInterface) {
 			return;
 		}
 

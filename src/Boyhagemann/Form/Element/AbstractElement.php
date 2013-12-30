@@ -2,11 +2,9 @@
 
 namespace Boyhagemann\Form\Element;
 
-use Boyhagemann\Form\Contract\HtmlElement;
-use Boyhagemann\Form\Contract\PresentableElement;
 use Boyhagemann\Form\View;
 
-abstract class AbstractElement implements HtmlElement, PresentableElement
+abstract class AbstractElement implements ElementInterface
 {
 	const STATE_SUCCESS = 'success';
 	const STATE_WARNING = 'warning';

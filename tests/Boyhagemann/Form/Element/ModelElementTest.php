@@ -81,7 +81,7 @@ class ModelElementTest extends \PHPUnit_Framework_TestCase
     {
         $qb = m::mock('Illuminate\Database\Query\Builder');
         $qb->shouldReceive('lists')->once()->andReturn(array('foo' => 'bar'));
-                
+
         $this->element->query($qb);
         
         $this->assertSame(array('foo' => 'bar'), $this->element->getChoices());
