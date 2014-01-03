@@ -121,7 +121,7 @@ abstract class ModelElement extends AbstractElement implements Type\Choice
 		}
 
         $qb = $this->getQuery();
-        
+
         if(!$qb) {
             return array();
         }

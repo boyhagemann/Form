@@ -37,6 +37,19 @@ class FormServiceProvider extends ServiceProvider
 
 		// Create an alias for the formbuilder class
 		$this->app->alias('Boyhagemann\Form\FormBuilder', 'formbuilder');
+
+
+		$container = $this->app->make('Boyhagemann\Form\FormElementContainer');
+		$container->resolvingAny(function($element) use($container) {
+
+			if(!$element instanceof Element\ModelElement) {
+				return;
+			}
+
+			$element->container($container);
+			return $element;
+		});
+
     }
 
     /**
