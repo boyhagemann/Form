@@ -4,7 +4,7 @@
 	@else
 	<div class="col-lg-2"></div>
 	@endif
-	<div class="col-sm-10 col-lg-10">
+	<div class="col-sm-10 col-lg-6">
 		@foreach($element->getChoices() as $key => $value)
 			<label class="choice">{{ Form::checkbox($element->getName() . '[]', $key, in_array($key, $element->getValue()), $element->getAttributes()) }} {{ $value }}</label>
 		@endforeach
