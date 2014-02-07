@@ -301,8 +301,27 @@ class FormBuilder
 		$this->defaults = $defaults;
 		return $this;
 	}
+    
+    /**
+     * 
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return $this->defaults;
+    }
+    
+    /**
+     * 
+     * @param string $name
+     * @return mixed
+     */
+    public function getDefault($name)
+    {
+        return isset($this->defaults[$name]) ? $this->defaults[$name] : null;
+    }
 
-	/**
+    /**
 	 * Add a route to use as the form action attribute
 	 *
      * @param string $route
