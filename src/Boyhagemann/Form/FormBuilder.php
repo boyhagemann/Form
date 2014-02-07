@@ -312,7 +312,7 @@ class FormBuilder
     public function route($route, $params = array())
     {
         if ($params) {
-            $this->options['route'] = array($route, $params);
+			$this->options['route'] = array_merge(array($route), $params);
         }
         else {
             $this->options['route'] = $route;
